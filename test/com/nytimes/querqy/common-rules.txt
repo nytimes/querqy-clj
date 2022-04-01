@@ -1,0 +1,35 @@
+A1 =>
+    SYNONYM: B1
+
+A2 B2 =>
+    SYNONYM: C2
+
+A3 =>
+    SYNONYM: B3
+    SYNONYM: C3
+
+A4 B4 =>
+    SYNONYM: C4
+    SYNONYM: D4
+
+A5 =>
+    UP(2): B5
+
+A6 =>
+    FILTER: B6
+
+A7 B7 =>
+    DELETE: B7
+
+A8 =>
+    SYNONYM: B8
+    UP(2): C8
+
+(A9 OR B9) =>
+    UP(2): C9
+
+(A10 AND B10) =>
+    UP(2): C10
+
+(A11 AND (NOT B11)) =>
+    UP(2): C11
