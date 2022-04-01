@@ -1,0 +1,5 @@
+# comment
+foos => foo
+barz => bar
+bars => bar
+quux =>

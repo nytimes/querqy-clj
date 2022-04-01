@@ -1,0 +1,10 @@
+personal computer =>
+  SYNONYM: pc
+  SYNONYM: desktop computer
+  DOWN(50): software
+
+iphone AND NOT case =>
+  UP(50): * category:mobilephone
+
+shoe OR shoes =>
+    FILTER: fashion
