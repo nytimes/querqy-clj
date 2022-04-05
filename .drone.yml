@@ -1,0 +1,42 @@
+---
+kind: pipeline
+name: querqy-clj
+type: docker
+workspace:
+  path: /root
+
+steps:
+- name: cache-deps
+  image: clojure:openjdk-17-lein
+  commands:
+  - lein deps
+
+- name: unit-test
+  image: clojure:openjdk-17-lein
+  depends_on:
+  - cache-deps
+  commands:
+  - lein test :unit
+
+- name: integration-test
+  image: clojure:openjdk-17-lein
+  depends_on:
+  - cache-deps
+  commands:
+  - lein test :integration
+
+- name: cljfmt
+  image: clojure:openjdk-17-lein
+  failure: ignore
+  depends_on:
+  - cache-deps
+  commands:
+  - lein cljfmt check
+
+- name: lint
+  image: clojure:openjdk-17-lein
+  failure: ignore
+  depends_on:
+  - cache-deps
+  commands:
+  - lein clj-kondo --lint src test

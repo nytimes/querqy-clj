@@ -5,6 +5,3 @@ personal computer =>
 
 iphone AND NOT case =>
   UP(50): * category:mobilephone
-
-shoe OR shoes =>
-    FILTER: fashion
