@@ -34,7 +34,10 @@
                                   [cheshire "5.10.2"]
                                   [metosin/testit "0.4.1"]
                                   [org.slf4j/slf4j-api "1.7.36"]
-                                  [org.slf4j/slf4j-simple "1.7.36"]]}}
+                                  [org.slf4j/slf4j-simple "1.7.36"]
+                                  [pjstadig/humane-test-output "0.11.0"]]
+                   :injections   [(require 'pjstadig.humane-test-output)
+                                  (pjstadig.humane-test-output/activate!)]}}
 
   :cljfmt {:indents {facts [[:block 1]]
                      fact  [[:block 1]]}}

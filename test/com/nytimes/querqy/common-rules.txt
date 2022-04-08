@@ -25,26 +25,11 @@ A8 =>
     SYNONYM: B8
     UP(2): C8
 
-A9 OR B9 =>
+(A9 OR B9) =>
     UP(2): C9
 
-personal computer =>
-  SYNONYM: pc
-  SYNONYM: desktop computer
-  DOWN(50): software
+(A10 AND B10) =>
+    UP(2): C10
 
-iphone AND NOT case =>
-  UP(50): * category:mobilephone
-
-A AND NOT B =>
-    UP(50): C
-
-
-A AND NOT (D OR B) =>
-    UP(50): C
-
-X AND NOT (A B C) =>
-    UP(1): x
-
-(ABC AND (NOT X Y)) =>
-    UP(1): XXX
+(A11 AND (NOT B11)) =>
+    UP(2): C11

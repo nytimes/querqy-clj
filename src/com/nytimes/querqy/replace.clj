@@ -3,17 +3,16 @@
   (:refer-clojure :exclude [replace])
   (:require
    [clojure.java.io :as io]
-   [clojure.string :as str]
-   [clojure.core.protocols :as cp])
+   [clojure.string :as str])
   (:import
-   (java.io InputStreamReader)
-   (java.util UUID Map List)
-   (querqy.parser WhiteSpaceQuerqyParser)
-   (querqy.rewrite RewriterFactory)
-   (querqy.rewrite.contrib ReplaceRewriter)
-   (querqy.rewrite.contrib.replace ReplaceRewriterParser TermsReplaceInstruction WildcardReplaceInstruction)
-   (querqy.trie SequenceLookup)
-   (querqy.model Input$BooleanInput)))
+    (java.io InputStreamReader)
+    (java.util UUID Map List)
+    (querqy.parser WhiteSpaceQuerqyParser)
+    (querqy.rewrite RewriterFactory)
+    (querqy.rewrite.contrib ReplaceRewriter)
+    (querqy.rewrite.contrib.replace ReplaceRewriterParser TermsReplaceInstruction WildcardReplaceInstruction)
+    (querqy.trie SequenceLookup)
+    (java.net URL)))
 
 (defprotocol ReplaceRewriterBuilder
   (replace-rewriter* [this]))
@@ -21,7 +20,7 @@
 (defn replace-rewriter
   ;; TODO Fix case where DSL has just one rule.
   [& args]
-  (if (= 1 (count args))
+  (if (and (= 1 (count args)) (instance? URL (first args)))
     (replace-rewriter* (first args))
     (replace-rewriter* args)))
 
