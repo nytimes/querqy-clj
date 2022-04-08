@@ -1,3 +1,17 @@
+A1 =>
+    SYNONYM: B1
+
+A2 B2 =>
+    SYNONYM: C2
+
+A3 =>
+    SYNONYM: B3
+    SYNONYM: C3
+
+A4 B4 =>
+    SYNONYM: C4
+    SYNONYM: D4
+
 personal computer =>
   SYNONYM: pc
   SYNONYM: desktop computer
@@ -5,3 +19,16 @@ personal computer =>
 
 iphone AND NOT case =>
   UP(50): * category:mobilephone
+
+A AND NOT B =>
+    UP(50): C
+
+
+A AND NOT (D OR B) =>
+    UP(50): C
+
+X AND NOT (A B C) =>
+    UP(1): x
+
+(ABC AND (NOT X Y)) =>
+    UP(1): XXX

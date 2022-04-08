@@ -81,6 +81,7 @@
 (defmacro match
   "Create a match rule."
   {:style/indent 1}
+  ;; TODO LEFT/ RIGHT boundaries
   [head & tail]
   `(match* '~head (vector ~@tail)))
 
@@ -97,6 +98,7 @@
 (defn synonym? [obj] (instance? SynonymInstruction obj))
 
 (defn synonym
+  "Create a synonym instruction."
   ([string]
    (SynonymInstruction. (parse-string string)))
   ([boost string]
@@ -108,7 +110,7 @@
         DOWN BoostInstruction$BoostDirection/DOWN]
     (BoostInstruction. (parse-query query)
                        (if (>= boost 0) UP DOWN)
-                       boost)))
+                       (abs boost))))
 
 (defn filter
   [query]
@@ -116,45 +118,26 @@
 
 ;;; match impl
 
-(defmulti parse-boolean-input (fn [form] (type form)))
+(defmulti parse-boolean-input (fn [form] (prn form) (type form)))
 
 (defmethod parse-boolean-input String
   [string]
-  (vec
-    (for [term (str/split string #"\s+")]
-      (BooleanInputElement. term BooleanInputElement$Type/TERM))))
+  (for [term (str/split string #"\s+")]
+    (BooleanInputElement. term BooleanInputElement$Type/TERM)))
 
 (defmethod parse-boolean-input List
-  [[operator & terms]]
-  (let [OR         (BooleanInputElement. "OR" BooleanInputElement$Type/OR)
-        AND        (BooleanInputElement. "AND" BooleanInputElement$Type/AND)
-        NOT        (BooleanInputElement. "NOT" BooleanInputElement$Type/NOT)
-        LEFTP      (BooleanInputElement. "(" BooleanInputElement$Type/LEFT_PARENTHESIS)
-        RIGHTP     (BooleanInputElement. ")" BooleanInputElement$Type/RIGHT_PARENTHESIS)
-        boolean-op (case (str operator)
-                     "or" OR
-                     "and" AND
-                     "not" NOT)]
-    (vec
-      (concat (list LEFTP)
-              (butlast (interleave (mapcat parse-boolean-input terms) (repeat boolean-op)))
-              (list RIGHTP)))))
-
-;;
-
-(defmulti boolean-input->string (fn [form] (type form)))
-
-(defmethod boolean-input->string List
-  [form]
-  (let [wrap     (fn [x] (format "(%s)" x))
-        operator (str (first form))]
+  [[operator & terms :as input]]
+  (let [OR     (BooleanInputElement. "OR" BooleanInputElement$Type/OR)
+        AND    (BooleanInputElement. "AND" BooleanInputElement$Type/AND)
+        NOT    (BooleanInputElement. "NOT" BooleanInputElement$Type/NOT)
+        LEFTP  (BooleanInputElement. "(" BooleanInputElement$Type/LEFT_PARENTHESIS)
+        RIGHTP (BooleanInputElement. ")" BooleanInputElement$Type/RIGHT_PARENTHESIS)
+        wrap   (fn [xs] (flatten (concat (list LEFTP) xs (list RIGHTP))))]
     (case operator
-      "or" (wrap (str/join " OR " (mapv boolean-input->string (rest form))))
-      "and" (wrap (str/join " AND " (mapv boolean-input->string (rest form))))
-      "not" (str "NOT " (str/join \space (mapv boolean-input->string (rest form)))))))
-
-(defmethod boolean-input->string Symbol [form] (str form))
-(defmethod boolean-input->string String [form] form)
+      or (wrap (interpose OR (parse-boolean-input terms)))
+      and (wrap (interpose AND (parse-boolean-input terms)))
+      not (wrap (cons NOT (parse-boolean-input terms)))
+      (map parse-boolean-input input))))
 
 ;;
 
@@ -182,7 +165,7 @@
           (let [boolean-input-parser (BooleanInputParser.)
                 bool-input           (Input$BooleanInput. (parse-boolean-input input)
                                                           boolean-input-parser
-                                                          (boolean-input->string input))]
+                                                          (pr-str input))]
 
             (.applyInstructions bool-input compiled rules-builder)
             (doseq [^BooleanInputLiteral literal (.values (.getLiteralRegister boolean-input-parser))]

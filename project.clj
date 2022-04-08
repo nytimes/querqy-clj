@@ -3,6 +3,11 @@
                  [org.querqy/querqy-core "3.12.0"]]
   :repl-options {:init-ns com.nytimes.querqy}
   :global-vars {*warn-on-reflection* true}
+
+  :test-selectors {:default     (complement :integration)
+                   :unit        (complement :integration)
+                   :integration :integration}
+
   :profiles {:dev {:source-paths ["dev"]
                    :dependencies [[criterium "0.4.4"]
                                   [clj-http "3.12.3"]
