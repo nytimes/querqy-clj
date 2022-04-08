@@ -6,7 +6,7 @@
   ([] (Optional/empty))
   ([x] (Optional/ofNullable x)))
 
-(defrecord Context [chain debug? params context]
+(defrecord Context [chain debug? params context info-logging-context]
   SearchEngineRequestAdapter
   (getRewriteChain [_] chain)
   (getContext [_] context)
@@ -24,5 +24,11 @@
    {:chain   []
     :debug?  false
     :params  {}
-    :context {}}))
+    :context {}
+    }))
+
+(def debug-context
+  (assoc empty-context
+    ;; TODO add logger stuff
+    :debug? true))
 

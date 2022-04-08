@@ -8,6 +8,9 @@
 (def must Clause$Occur/MUST)
 (def must-not Clause$Occur/MUST_NOT)
 
+(defn get-occur [^Clause clause]
+  (.getOccur clause))
+
 (defn occur->kw [^Clause$Occur occur]
   (keyword (str/lower-case (.name occur))))
 
@@ -63,7 +66,7 @@
       (.addClause bq (.clone clause bq)))
     bq))
 
-(deftype RawQuery [parent occur query generated?]
+(defrecord RawQuery [parent occur query generated?]
   QuerqyQuery
   (clone [this new-parent]
     (RawQuery. new-parent occur query generated?))
