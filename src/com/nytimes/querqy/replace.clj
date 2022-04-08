@@ -69,8 +69,10 @@
   (let [trie (SequenceLookup.)]
     (doseq [[input output] (flatten-map-keys m)]
       (let [input  (str/lower-case input)
-            output (when output
-                     (str/split output whitespace))]
+            output (cond
+                     (string? output)     (str/split output whitespace)
+                     (sequential? output) output
+                     (nil? output)        [])]
         (cond
           (str/starts-with? input wildcard)
           (if (str/ends-with? input wildcard)
@@ -113,7 +115,7 @@
 
 (defn with [output] output)
 
-(defn delete [input] (replace input (with "")))
+(defn delete [input] (replace input (with nil)))
 
 (extend-protocol ReplaceRewriterBuilder
   List

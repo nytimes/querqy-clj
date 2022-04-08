@@ -45,15 +45,13 @@
 
   (def chain (chain-of [typos-rewriter rules-rewriter]))
 
+  ;; rewriter chain will delete cheap, correct ihpone typo, and boost mobile phone category
   (datafy (rewrite chain "cheap ihpone"))
   ;; =>
   {:type       querqy.model.ExpandedQuery,
    :user-query {:type    querqy.model.Query,
                 :occur   :should,
                 :clauses [{:type    querqy.model.DisjunctionMaxQuery,
-                           :occur   :should,
-                           :clauses [{:type querqy.model.Term, :field nil, :value ""}]}
-                          {:type    querqy.model.DisjunctionMaxQuery,
                            :occur   :should,
                            :clauses [{:type querqy.model.Term, :field nil, :value "iphone"}]}]},
    :boost-up   [{:type  querqy.model.BoostQuery,
