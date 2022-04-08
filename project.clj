@@ -1,5 +1,5 @@
 (defproject com.nytimes/querqy "0.1.0-SNAPSHOT"
-  :dependencies [[org.clojure/clojure "1.11.0"]
+  :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.querqy/querqy-core "3.12.0"]]
   :repl-options {:init-ns com.nytimes.querqy}
   :global-vars {*warn-on-reflection* true}

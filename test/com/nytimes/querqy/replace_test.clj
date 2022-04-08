@@ -1,20 +1,21 @@
 (ns com.nytimes.querqy.replace-test
   (:refer-clojure :exclude [replace])
   (:require
+    com.nytimes.querqy.model
    [clojure.datafy :refer [datafy]]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [clojure.test :refer [are deftest is]]
-   [com.nytimes.querqy.datafy]
    [com.nytimes.querqy :as querqy]
    [com.nytimes.querqy.replace :as r :refer [delete replace with]]))
 
 (defn query->string
   [q]
   (->> (datafy q)
-       :userQuery
-       (map :clause)
-       (mapcat identity)
+       :user-query
+       :clauses
+       (mapcat :clauses)
+       (map :value)
        (str/join " ")
        (str/trim)))
 
