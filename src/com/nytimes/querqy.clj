@@ -6,7 +6,6 @@
   (:import (querqy.rewrite RewriteChain)
            (querqy.model ExpandedQuery)))
 
-
 (def ^:dynamic *query-parser* parser/whitespace-parser)
 (def ^:dynamic *query-emitter* nil)
 
@@ -39,11 +38,9 @@
 
   (def useless-terms
     (replace-rewriter
-      (into {} (map vector ["cheap" "fast"] (repeat "")))))
+     (into {} (map vector ["cheap" "fast"] (repeat "")))))
 
   (def chain (chain-of [typos useless-terms]))
 
   (binding [*query-emitter* datafy-emitter]
-    (->> (parse "cheap ombile phones") (rewrite chain) (emit {})))
-
-  )
+    (->> (parse "cheap ombile phones") (rewrite chain) (emit {}))))

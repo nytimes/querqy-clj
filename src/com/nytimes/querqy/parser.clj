@@ -1,10 +1,10 @@
 (ns com.nytimes.querqy.parser
   (:require
-    [clojure.string :as str]
-    [com.nytimes.querqy.protocols :as p])
+   [clojure.string :as str]
+   [com.nytimes.querqy.protocols :as p])
   (:import
-    (querqy.parser QuerqyParser WhiteSpaceQuerqyParser FieldAwareWhiteSpaceQuerqyParser)
-    (querqy.rewrite.commonrules LineParser)))
+   (querqy.parser QuerqyParser WhiteSpaceQuerqyParser FieldAwareWhiteSpaceQuerqyParser)
+   (querqy.rewrite.commonrules LineParser)))
 
 (def whitespace-parser
   (WhiteSpaceQuerqyParser.))
@@ -16,7 +16,6 @@
   QuerqyParser
   (p/parse [this string]
     (.parse this string)))
-
 
 ;; Other parsing adjacent functions
 

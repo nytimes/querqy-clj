@@ -46,23 +46,23 @@
 
 (def resource-rewriter
   (r/rules-rewriter
-    (io/resource "com/nytimes/querqy/common-rules.txt")))
+   (io/resource "com/nytimes/querqy/common-rules.txt")))
 
 (def dsl-rewriter
   (r/rules-rewriter
     ;; basics
-    (match "A1" (synonym "B1"))
-    (match "A2 B2" (synonym "C2"))
-    (match "A3" (synonym "B3") (synonym "C3"))
-    (match "A4 B4" (synonym "C4") (synonym "D4"))
-    (match "A5" (boost 2 "B5"))
-    (match "A6" (filter "B6"))
-    (match "A7 B7" (delete "B7"))
-    (match "A8" (synonym "B8") (boost 2 "C8"))
+   (match "A1" (synonym "B1"))
+   (match "A2 B2" (synonym "C2"))
+   (match "A3" (synonym "B3") (synonym "C3"))
+   (match "A4 B4" (synonym "C4") (synonym "D4"))
+   (match "A5" (boost 2 "B5"))
+   (match "A6" (filter "B6"))
+   (match "A7 B7" (delete "B7"))
+   (match "A8" (synonym "B8") (boost 2 "C8"))
     ;; boolean rules
-    (match (or "A9" "B9") (boost 2 "C9"))
-    (match (and "A10" "B10") (boost 2 "C10"))
-    (match (and "A11" (not "B11")) (boost 2 "C11"))))
+   (match (or "A9" "B9") (boost 2 "C9"))
+   (match (and "A10" "B10") (boost 2 "C10"))
+   (match (and "A11" (not "B11")) (boost 2 "C11"))))
 
 (defn rewrite
   "util to do a rewrite and datafy the result for easier comparison"
@@ -88,9 +88,8 @@
 ;; ----------------------------------------------------------------------
 ;; Realistic Rewriter
 
-
-(def rewriter
-  (r/rules-rewriter))
+#_(def rewriter
+    (r/rules-rewriter))
 
 
 

@@ -1,9 +1,9 @@
 (ns com.nytimes.querqy.protocols
   (:require
-    [com.nytimes.querqy.context :as context])
+   [com.nytimes.querqy.context :as context])
   (:import
-    (querqy.model ExpandedQuery)
-    (querqy.rewrite ContextAwareQueryRewriter RewriteChain RewriterFactory SearchEngineRequestAdapter)))
+   (querqy.model ExpandedQuery)
+   (querqy.rewrite ContextAwareQueryRewriter RewriteChain RewriterFactory SearchEngineRequestAdapter)))
 
 (defprotocol Parser
   ;; returns Query, not Expanded Query

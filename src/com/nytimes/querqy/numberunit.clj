@@ -11,7 +11,6 @@
   (:require
    [clojure.spec.alpha :as s]))
 
-
 (comment
   (NumberUnitRewriterFactory. (str (UUID/randomUUID))
                               []
@@ -24,6 +23,4 @@
       (proxy [RewriterFactory] [(str (UUID/randomUUID))]
         (createRewriter [_ _]
           (NumberUnitRewriter. numberunit-map numberunit-query-creator))
-        (getCacheableGenerableTerms [] #{}))))
-
-  ,)
+        (getCacheableGenerableTerms [] #{})))))

@@ -1,13 +1,13 @@
 (ns com.nytimes.querqy.replace-test
   (:refer-clojure :exclude [replace])
   (:require
-    com.nytimes.querqy.model
-    [clojure.datafy :refer [datafy]]
-    [clojure.java.io :as io]
-    [clojure.string :as str]
-    [clojure.test :refer [are deftest is]]
-    [com.nytimes.querqy :as querqy]
-    [com.nytimes.querqy.replace :as r :refer [delete replace with]]))
+   com.nytimes.querqy.model
+   [clojure.datafy :refer [datafy]]
+   [clojure.java.io :as io]
+   [clojure.string :as str]
+   [clojure.test :refer [are deftest is]]
+   [com.nytimes.querqy :as querqy]
+   [com.nytimes.querqy.replace :as r :refer [delete replace with]]))
 
 (defn query->string
   "util to turn expanded query into a string. this only works for this particular set of tests."
@@ -22,19 +22,19 @@
 
 (def map-rewriter
   (r/replace-rewriter
-    {"foos"          "foo"
-     ["bars" "barz"] "bar"
-     "quux"          ""}))
+   {"foos"          "foo"
+    ["bars" "barz"] "bar"
+    "quux"          ""}))
 
 (def resource-rewriter
   (r/replace-rewriter
-    (io/resource "com/nytimes/querqy/replace-rules.txt")))
+   (io/resource "com/nytimes/querqy/replace-rules.txt")))
 
 (def dsl-rewriter
   (r/replace-rewriter
-    (replace "foos" (with "foo"))
-    (replace (or "bars" "barz") (with "bar"))
-    (delete "quux")))
+   (replace "foos" (with "foo"))
+   (replace (or "bars" "barz") (with "bar"))
+   (delete "quux")))
 
 (deftest map-config
   (is (= "foo 123" (query->string (querqy/rewrite map-rewriter "foos 123"))))
@@ -53,29 +53,29 @@
 
 (def rewriter
   (r/replace-rewriter
-    (replace "cheap*"
-             (with "cheap"))
-    (replace "samrt*"
-             (with "smart$1"))
-    (replace "computer*"
-             (with "computer $1"))
-    (replace (or "*phones" "*hpone" "*hpones")
-             (with "$1phone"))
-    (replace "*+"
-             (with "$1 plus"))
-    (replace "*."
-             (with "$1"))
-    (replace "*)"
-             (with "$1"))
-    (replace "(*"
-             (with "$1"))))
+   (replace "cheap*"
+            (with "cheap"))
+   (replace "samrt*"
+            (with "smart$1"))
+   (replace "computer*"
+            (with "computer $1"))
+   (replace (or "*phones" "*hpone" "*hpones")
+            (with "$1phone"))
+   (replace "*+"
+            (with "$1 plus"))
+   (replace "*."
+            (with "$1"))
+   (replace "*)"
+            (with "$1"))
+   (replace "(*"
+            (with "$1"))))
 
 (deftest replace-test
   (are [input output] (= output (query->string (querqy/rewrite rewriter input)))
-                      "cheapest cheaper cheap" "cheap cheap cheap"
-                      "samrtphone" "smartphone"
-                      "computerscreen" "computer screen"
-                      "iphones" "iphone"
-                      "ihpone ihpone" "iphone iphone"
-                      "galaxy+ phone" "galaxy plus phone"
-                      "The Batman (2022)" "The Batman 2022"))
+    "cheapest cheaper cheap" "cheap cheap cheap"
+    "samrtphone" "smartphone"
+    "computerscreen" "computer screen"
+    "iphones" "iphone"
+    "ihpone ihpone" "iphone iphone"
+    "galaxy+ phone" "galaxy plus phone"
+    "The Batman (2022)" "The Batman 2022"))

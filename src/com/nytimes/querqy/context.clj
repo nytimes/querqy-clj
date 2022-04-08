@@ -21,8 +21,8 @@
 
 (def empty-context
   (map->Context
-    {:chain   []
-     :debug?  false
-     :params  {}
-     :context {}}))
+   {:chain   []
+    :debug?  false
+    :params  {}
+    :context {}}))
 

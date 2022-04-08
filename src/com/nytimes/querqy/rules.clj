@@ -41,10 +41,9 @@
   (proxy [RewriterFactory] [(str (UUID/randomUUID))]
     (createRewriter [_ _]
       (CommonRulesRewriter.
-        rules
-        SelectionStrategyFactory/DEFAULT_SELECTION_STRATEGY))
+       rules
+       SelectionStrategyFactory/DEFAULT_SELECTION_STRATEGY))
     (getCacheableGenerableTerms [] #{})))
-
 
 ;; ----------------------------------------------------------------------
 ;; Resource
@@ -57,10 +56,10 @@
                            ignore-case   true
                            parser        (WhiteSpaceQuerqyParserFactory.)}}]
    (let [rules-parser (SimpleCommonRulesParser.
-                        ^Reader stream
-                        ^boolean boolean-input
-                        ^QuerqyParserFactory parser
-                        ^boolean ignore-case)]
+                       ^Reader stream
+                       ^boolean boolean-input
+                       ^QuerqyParserFactory parser
+                       ^boolean ignore-case)]
      (.parse rules-parser))))
 
 (extend-protocol CommonRulesRewriterBuilder
@@ -150,7 +149,9 @@
 
 (def rule-count (atom 0))
 
-(defn match* [input instructions]
+(defn ^:no-doc match*
+  ;; implements match for use by match macro
+  [input instructions]
   (let [ord      (swap! rule-count inc)
         compiled (Instructions. ord ord instructions)]
     (fn [^TrieMapRulesCollectionBuilder rules-builder]

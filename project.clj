@@ -4,6 +4,9 @@
   :license {:name "Apache License"
             :url  "http://www.apache.org/licenses/LICENSE-2.0"}
 
+  :plugins [[com.github.clj-kondo/lein-clj-kondo "0.1.3"]
+            [lein-cljfmt "0.8.0"]]
+
   :repositories [["releases" {:url           "https://clojars.org/repo"
                               :sign-releases false
                               :username      [:env/clojars_username]
@@ -33,6 +36,8 @@
                                   [org.slf4j/slf4j-api "1.7.36"]
                                   [org.slf4j/slf4j-simple "1.7.36"]]}}
 
+  :cljfmt {:indents {facts [[:block 1]]
+                     fact  [[:block 1]]}}
 
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version" "leiningen.release/bump-version" "release"]
