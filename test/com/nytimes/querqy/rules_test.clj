@@ -55,11 +55,14 @@
     (match "A2 B2" (synonym "C2"))
     (match "A3" (synonym "B3") (synonym "C3"))
     (match "A4 B4" (synonym "C4") (synonym "D4"))
-
-    (match "personal computer"
-           (synonym "pc")
-           (synonym "desktop")
-           (boost -50 "software"))))
+    (match "A5" (boost 2 "B5"))
+    (match "A6" (filter "B6"))
+    (match "A7 B7" (delete "B7"))
+    (match "A8" (synonym "B8") (boost 2 "C8"))
+    ;; boolean rules
+    (match (or "A9" "B9") (boost 2 "C9"))
+    (match (and "A10" "B10") (boost 2 "C10"))
+    (match (and "A11" (not "B11")) (boost 2 "C11"))))
 
 (defn rewrite
   "util to do a rewrite and datafy the result for easier comparison"
@@ -68,10 +71,26 @@
 
 (deftest rewriter-test
   (facts "DSL & Resource Rewriters have the same output"
-    (rewrite dsl-rewriter "A1")    => (rewrite resource-rewriter "A1")
+    (rewrite dsl-rewriter "A1") => (rewrite resource-rewriter "A1")
     (rewrite dsl-rewriter "A2 B2") => (rewrite resource-rewriter "A2 B2")
-    (rewrite dsl-rewriter "A3")    => (rewrite resource-rewriter "A3")
-    (rewrite dsl-rewriter "A4 B4") => (rewrite resource-rewriter "A4 B4")))
+    (rewrite dsl-rewriter "A3") => (rewrite resource-rewriter "A3")
+    (rewrite dsl-rewriter "A4 B4") => (rewrite resource-rewriter "A4 B4")
+    (rewrite dsl-rewriter "A5") => (rewrite resource-rewriter "A5")
+    (rewrite dsl-rewriter "A6") => (rewrite resource-rewriter "A6")
+    (rewrite dsl-rewriter "A7 B7") => (rewrite resource-rewriter "A7 B7")
+    (rewrite dsl-rewriter "A8") => (rewrite resource-rewriter "A8")
+    (rewrite dsl-rewriter "A9") => (rewrite resource-rewriter "A9")
+    (rewrite dsl-rewriter "B9") => (rewrite resource-rewriter "B9")
+    (rewrite dsl-rewriter "A10 B10") => (rewrite resource-rewriter "A10 B10")
+    (rewrite dsl-rewriter "A11") => (rewrite resource-rewriter "A11")
+    (rewrite dsl-rewriter "A11 B11") => (rewrite resource-rewriter "A11 B11")))
+
+;; ----------------------------------------------------------------------
+;; Realistic Rewriter
+
+
+(def rewriter
+  (r/rules-rewriter))
 
 
 
@@ -79,35 +98,3 @@
 
 
 
-
-
-
-
-
-
-;SYNONYM: pc
-;SYNONYM: desktop computer
-;DOWN(50): software
-;
-;iphone AND NOT case =>
-;UP(50): * category:mobilephone
-;
-;(def dsl-rewriter
-;  (r/rules-rewriter
-;    (match "personal computer"
-;           (synonym "pc")
-;           (synonym "desktop computer")
-;           (boost -50 "software"))
-;    (match (and "iphone" (not "case"))
-;           (boost 50 {:term {:category "mobilephone"}}))))
-;
-;(deftest resource-config
-;  (is (= "foo 123" (query->string (querqy/rewrite resource-rewriter "foos 123"))))
-;  (is (= "bar or bar" (query->string (querqy/rewrite resource-rewriter "bars or barz"))))
-;  (is (= "delete the" (query->string (querqy/rewrite resource-rewriter "delete the quux")))))
-;
-;(deftest dsl-config
-;  (is (= "foo 123" (query->string (querqy/rewrite dsl-rewriter "foos 123"))))
-;  (is (= "bar or bar" (query->string (querqy/rewrite dsl-rewriter "bars or barz"))))
-;  (is (= "delete the" (query->string (querqy/rewrite dsl-rewriter "delete the quux")))))
-;

@@ -12,6 +12,22 @@ A4 B4 =>
     SYNONYM: C4
     SYNONYM: D4
 
+A5 =>
+    UP(2): B5
+
+A6 =>
+    FILTER: B6
+
+A7 B7 =>
+    DELETE: B7
+
+A8 =>
+    SYNONYM: B8
+    UP(2): C8
+
+A9 OR B9 =>
+    UP(2): C9
+
 personal computer =>
   SYNONYM: pc
   SYNONYM: desktop computer

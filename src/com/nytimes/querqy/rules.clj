@@ -21,6 +21,11 @@
 (defprotocol CommonRulesRewriterBuilder
   (common-rules-rewriter* [this]))
 
+(extend-protocol CommonRulesRewriterBuilder
+  nil
+  (common-rules-rewriter* [_]
+    (throw (IllegalArgumentException. "Must provide rules to rules-rewriter"))))
+
 (defn rules-rewriter
   "Create a CommonRulesRewriter.
 
@@ -106,6 +111,8 @@
 
 (defn boost
   [boost query]
+  (when (zero? boost)
+    (throw (IllegalArgumentException. "Cannot boost by 0")))
   (let [UP   BoostInstruction$BoostDirection/UP
         DOWN BoostInstruction$BoostDirection/DOWN]
     (BoostInstruction. (parse-query query)
@@ -118,7 +125,7 @@
 
 ;;; match impl
 
-(defmulti parse-boolean-input (fn [form] (prn form) (type form)))
+(defmulti parse-boolean-input (fn [form] (type form)))
 
 (defmethod parse-boolean-input String
   [string]
