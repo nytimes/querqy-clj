@@ -23,11 +23,11 @@
     Additionally, there are some helper functions provided to add clauses to the
     boolean user query and boosting clauses on to the function score query."
   (:require
-    [com.nytimes.querqy.protocols :as p]
-    [com.nytimes.querqy.model :as m])
-  (:import (querqy.model BooleanQuery BoostedTerm BoostQuery DisjunctionMaxQuery ExpandedQuery MatchAllQuery Term)
-           (com.nytimes.querqy.model RawQuery)))
-
+   [com.nytimes.querqy.model :as m]
+   [com.nytimes.querqy.protocols :as p])
+  (:import
+   (com.nytimes.querqy.model RawQuery)
+   (querqy.model BooleanQuery BoostedTerm BoostQuery DisjunctionMaxQuery ExpandedQuery MatchAllQuery Term)))
 
 (defprotocol InternalEmitter
   (emit* [this opts]))

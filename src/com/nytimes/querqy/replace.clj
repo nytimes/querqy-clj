@@ -5,14 +5,14 @@
    [clojure.java.io :as io]
    [clojure.string :as str])
   (:import
-    (java.io InputStreamReader)
-    (java.util UUID Map List)
-    (querqy.parser WhiteSpaceQuerqyParser)
-    (querqy.rewrite RewriterFactory)
-    (querqy.rewrite.contrib ReplaceRewriter)
-    (querqy.rewrite.contrib.replace ReplaceRewriterParser TermsReplaceInstruction WildcardReplaceInstruction)
-    (querqy.trie SequenceLookup)
-    (java.net URL)))
+   (java.io InputStreamReader)
+   (java.net URL)
+   (java.util List Map UUID)
+   (querqy.parser WhiteSpaceQuerqyParser)
+   (querqy.rewrite RewriterFactory)
+   (querqy.rewrite.contrib ReplaceRewriter)
+   (querqy.rewrite.contrib.replace ReplaceRewriterParser TermsReplaceInstruction WildcardReplaceInstruction)
+   (querqy.trie SequenceLookup)))
 
 (defprotocol ReplaceRewriterBuilder
   (replace-rewriter* [this]))

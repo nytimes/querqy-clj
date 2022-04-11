@@ -1,8 +1,10 @@
 (ns com.nytimes.querqy.model
-  (:require [clojure.core.protocols :as cp]
-            [clojure.datafy :refer [datafy]]
-            [clojure.string :as str])
-  (:import (querqy.model QuerqyQuery Clause$Occur Input$SimpleInput BooleanQuery Term DisjunctionMaxQuery BoostedTerm ExpandedQuery MatchAllQuery Query BoostQuery Clause BooleanParent)))
+  (:require
+   [clojure.core.protocols :as cp]
+   [clojure.datafy :refer [datafy]]
+   [clojure.string :as str])
+  (:import
+   (querqy.model BooleanParent BooleanQuery BoostedTerm BoostQuery Clause Clause$Occur DisjunctionMaxQuery ExpandedQuery Input$SimpleInput MatchAllQuery QuerqyQuery Query Term)))
 
 (def should Clause$Occur/SHOULD)
 (def must Clause$Occur/MUST)

@@ -2,22 +2,22 @@
   "CommonRules based rewriter"
   (:refer-clojure :exclude [filter])
   (:require
-    [clojure.java.io :as io]
-    [clojure.string :as str]
-    [com.nytimes.querqy.model :as model]
-    [com.nytimes.querqy.parser :as parser])
+   [clojure.java.io :as io]
+   [clojure.string :as str]
+   [com.nytimes.querqy.model :as model]
+   [com.nytimes.querqy.parser :as parser])
   (:import
-    (java.io Reader)
-    (querqy.rewrite.commonrules QuerqyParserFactory WhiteSpaceQuerqyParserFactory SimpleCommonRulesParser CommonRulesRewriter LineParser)
-    (java.net URL)
-    (querqy.rewrite.commonrules.select SelectionStrategyFactory)
-    (java.util UUID List)
-    (querqy.rewrite RewriterFactory)
-    (querqy.rewrite.commonrules.model TrieMapRulesCollectionBuilder Instructions BoostInstruction$BoostDirection BoostInstruction DeleteInstruction SynonymInstruction FilterInstruction)
-    (querqy.model Input Input$SimpleInput Input$BooleanInput)
-    (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
-    (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type BooleanInputLiteral)
-    (querqy.parser QuerqyParser)))
+   (java.io Reader)
+   (java.net URL)
+   (java.util List UUID)
+   (querqy.model Input Input$BooleanInput Input$SimpleInput)
+   (querqy.parser QuerqyParser)
+   (querqy.rewrite RewriterFactory)
+   (querqy.rewrite.commonrules CommonRulesRewriter LineParser QuerqyParserFactory SimpleCommonRulesParser WhiteSpaceQuerqyParserFactory)
+   (querqy.rewrite.commonrules.model BoostInstruction BoostInstruction$BoostDirection DeleteInstruction FilterInstruction Instructions SynonymInstruction TrieMapRulesCollectionBuilder)
+   (querqy.rewrite.commonrules.select SelectionStrategyFactory)
+   (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
+   (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type BooleanInputLiteral)))
 
 (defprotocol CommonRulesRewriterBuilder
   (common-rules-rewriter* [this]))

@@ -1,6 +1,7 @@
 (ns com.nytimes.querqy.context
-  (:import (querqy.rewrite SearchEngineRequestAdapter)
-           (java.util Optional)))
+  (:import
+   (java.util Optional)
+   (querqy.rewrite SearchEngineRequestAdapter)))
 
 (defn optional
   ([] (Optional/empty))
