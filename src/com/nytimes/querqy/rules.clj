@@ -2,22 +2,22 @@
   "CommonRules based rewriter"
   (:refer-clojure :exclude [filter])
   (:require
-   [clojure.java.io :as io]
-   [clojure.string :as str]
-   [com.nytimes.querqy.model :as model]
-   [com.nytimes.querqy.parser :as parser])
+    [clojure.java.io :as io]
+    [clojure.string :as str]
+    [com.nytimes.querqy.model :as model]
+    [com.nytimes.querqy.parser :as parser])
   (:import
-   (java.io Reader)
-   (java.net URL)
-   (java.util List UUID)
-   (querqy.model Input Input$BooleanInput Input$SimpleInput)
-   (querqy.parser QuerqyParser)
-   (querqy.rewrite RewriterFactory)
-   (querqy.rewrite.commonrules CommonRulesRewriter LineParser QuerqyParserFactory SimpleCommonRulesParser WhiteSpaceQuerqyParserFactory)
-   (querqy.rewrite.commonrules.model BoostInstruction BoostInstruction$BoostDirection DeleteInstruction FilterInstruction Instructions SynonymInstruction TrieMapRulesCollectionBuilder)
-   (querqy.rewrite.commonrules.select SelectionStrategyFactory)
-   (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
-   (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type BooleanInputLiteral)))
+    (java.io Reader)
+    (java.net URL)
+    (java.util List UUID)
+    (querqy.model Input Input$BooleanInput Input$SimpleInput)
+    (querqy.parser QuerqyParser)
+    (querqy.rewrite RewriterFactory)
+    (querqy.rewrite.commonrules CommonRulesRewriter LineParser QuerqyParserFactory SimpleCommonRulesParser WhiteSpaceQuerqyParserFactory)
+    (querqy.rewrite.commonrules.model BoostInstruction BoostInstruction$BoostDirection DeleteInstruction FilterInstruction Instructions SynonymInstruction TrieMapRulesCollectionBuilder)
+    (querqy.rewrite.commonrules.select SelectionStrategyFactory)
+    (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
+    (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type BooleanInputLiteral)))
 
 (defprotocol CommonRulesRewriterBuilder
   (common-rules-rewriter* [this]))
@@ -27,6 +27,13 @@
   (common-rules-rewriter* [_]
     (throw (IllegalArgumentException. "Must provide rules to rules-rewriter"))))
 
+
+(defn- flatten-rules
+  [fns]
+  (reduce (fn [accm afn] (if (coll? afn) (into accm afn) (conj accm afn)))
+          []
+          fns))
+
 (defn rules-rewriter
   "Create a CommonRulesRewriter.
 
@@ -35,7 +42,7 @@
   [& args]
   (if (and (= 1 (count args)) (instance? URL (first args)))
     (common-rules-rewriter* (first args))
-    (common-rules-rewriter* args)))
+    (common-rules-rewriter* (flatten-rules args))))
 
 (defn rewriter-factory
   [rules]
