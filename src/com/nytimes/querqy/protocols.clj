@@ -2,22 +2,23 @@
   (:require
    [com.nytimes.querqy.context :as context])
   (:import
-   (querqy.model ExpandedQuery)
+   (querqy.model Query)
    (querqy.rewrite ContextAwareQueryRewriter RewriteChain RewriterFactory SearchEngineRequestAdapter)))
 
 (defprotocol Parser
-  ;; returns Query, not Expanded Query
-  (parse [this ^String string]))
+  (parse ^Query [this ^String string]
+    "Parse a string into in a `query.model.Query`"))
 
 ;; ----------------------------------------------------------------------
 
 (defprotocol Rewriter
+  "A rewriter transforms "
   (rewrite
-    [this
-     ^ExpandedQuery query]
-    [this
-     ^ExpandedQuery query
-     ^SearchEngineRequestAdapter context]))
+    [this ^ExpandedQuery query]
+    [this ^ExpandedQuery query ^SearchEngineRequestAdapter context]
+    "Transform an ExpandedQuery into a new, potentially rewritted ExpandedQuery."))
+
+;; Some default Rewriter impplementations for the Querqy classes.
 
 (extend-protocol Rewriter
   ContextAwareQueryRewriter
@@ -45,4 +46,5 @@
 ;; ----------------------------------------------------------------------
 
 (defprotocol Emitter
-  (emit [this query opts]))
+  (emit [this query opts]
+    "Emit a system-specific query for a given `querqy.model.ExpandedQuery`"))

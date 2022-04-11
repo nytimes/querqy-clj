@@ -1,8 +1,7 @@
 (defproject com.nytimes/querqy "0.1.0-SNAPSHOT"
   :description "Querqy in Clojure"
   :url "https://github.com/nytimes/querqy-clj"
-  :license {:name "Apache License"
-            :url  "http://www.apache.org/licenses/LICENSE-2.0"}
+  :license {:name "Apache License", :url "http://www.apache.org/licenses/LICENSE-2.0"}
 
   :plugins [[com.github.clj-kondo/lein-clj-kondo "0.1.3"]
             [lein-cljfmt "0.8.0"]]
