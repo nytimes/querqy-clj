@@ -1,22 +1,23 @@
 (ns com.nytimes.querqy.rules
   "CommonRules based rewriter"
-  (:refer-clojure :rename {filter cfilter})
-  (:require [clojure.java.io :as io]
-            [clojure.string :as str]
-            [com.nytimes.querqy.model :as model]
-            [com.nytimes.querqy.parser :as parser])
-  (:import (java.io Reader)
-           (querqy.rewrite.commonrules QuerqyParserFactory WhiteSpaceQuerqyParserFactory SimpleCommonRulesParser CommonRulesRewriter LineParser)
-           (java.net URL)
-           (querqy.rewrite.commonrules.select SelectionStrategyFactory)
-           (java.util UUID List)
-           (querqy.rewrite RewriterFactory)
-           (querqy.rewrite.commonrules.model TrieMapRulesCollectionBuilder Instruction Instructions BoostInstruction$BoostDirection BoostInstruction DeleteInstruction SynonymInstruction FilterInstruction)
-           (querqy.model Input Input$SimpleInput Input$BooleanInput)
-           (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
-           (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type BooleanInputLiteral)
-           (clojure.lang Symbol)
-           (querqy.parser QuerqyParser)))
+  (:refer-clojure :exclude [filter])
+  (:require
+    [clojure.java.io :as io]
+    [clojure.string :as str]
+    [com.nytimes.querqy.model :as model]
+    [com.nytimes.querqy.parser :as parser])
+  (:import
+    (java.io Reader)
+    (querqy.rewrite.commonrules QuerqyParserFactory WhiteSpaceQuerqyParserFactory SimpleCommonRulesParser CommonRulesRewriter LineParser)
+    (java.net URL)
+    (querqy.rewrite.commonrules.select SelectionStrategyFactory)
+    (java.util UUID List)
+    (querqy.rewrite RewriterFactory)
+    (querqy.rewrite.commonrules.model TrieMapRulesCollectionBuilder Instructions BoostInstruction$BoostDirection BoostInstruction DeleteInstruction SynonymInstruction FilterInstruction)
+    (querqy.model Input Input$SimpleInput Input$BooleanInput)
+    (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
+    (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type BooleanInputLiteral)
+    (querqy.parser QuerqyParser)))
 
 (defprotocol CommonRulesRewriterBuilder
   (common-rules-rewriter* [this]))
@@ -41,8 +42,8 @@
   (proxy [RewriterFactory] [(str (UUID/randomUUID))]
     (createRewriter [_ _]
       (CommonRulesRewriter.
-       rules
-       SelectionStrategyFactory/DEFAULT_SELECTION_STRATEGY))
+        rules
+        SelectionStrategyFactory/DEFAULT_SELECTION_STRATEGY))
     (getCacheableGenerableTerms [] #{})))
 
 ;; ----------------------------------------------------------------------
@@ -56,10 +57,10 @@
                            ignore-case   true
                            parser        (WhiteSpaceQuerqyParserFactory.)}}]
    (let [rules-parser (SimpleCommonRulesParser.
-                       ^Reader stream
-                       ^boolean boolean-input
-                       ^QuerqyParserFactory parser
-                       ^boolean ignore-case)]
+                        ^Reader stream
+                        ^boolean boolean-input
+                        ^QuerqyParserFactory parser
+                        ^boolean ignore-case)]
      (.parse rules-parser))))
 
 (extend-protocol CommonRulesRewriterBuilder
