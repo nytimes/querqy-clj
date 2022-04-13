@@ -2,7 +2,7 @@
   (:require
     [com.nytimes.querqy.protocols :as p])
   (:import
-    (querqy.parser QuerqyParser WhiteSpaceQuerqyParser FieldAwareWhiteSpaceQuerqyParser)))
+    (querqy.parser FieldAwareWhiteSpaceQuerqyParser QuerqyParser WhiteSpaceQuerqyParser)))
 
 (def whitespace-parser
   (WhiteSpaceQuerqyParser.))

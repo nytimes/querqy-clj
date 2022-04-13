@@ -1,12 +1,14 @@
 (ns com.nytimes.querqy
   "Functions to working with Querqy from Clojure. "
-  (:require [com.nytimes.querqy]
-            [com.nytimes.querqy.protocols :as p]
-            [com.nytimes.querqy.parser :as parser]
-            [com.nytimes.querqy.context :as context]
-            [com.nytimes.querqy.elasticsearch :as elasticsearch])
-  (:import (querqy.rewrite RewriteChain)
-           (querqy.model ExpandedQuery)))
+  (:require
+    [com.nytimes.querqy]
+    [com.nytimes.querqy.context :as context]
+    [com.nytimes.querqy.elasticsearch :as elasticsearch]
+    [com.nytimes.querqy.parser :as parser]
+    [com.nytimes.querqy.protocols :as p])
+  (:import
+    (querqy.model ExpandedQuery)
+    (querqy.rewrite RewriteChain)))
 
 (def ^:dynamic *query-parser* parser/whitespace-parser)
 (def ^:dynamic *query-emitter* (elasticsearch/elasticsearch-query-emitter))

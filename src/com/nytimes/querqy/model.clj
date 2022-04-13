@@ -3,14 +3,9 @@
   (:require
     [clojure.core.protocols :as cp]
     [clojure.datafy :refer [datafy]]
-    [clojure.string :as str]
-    [clojure.spec.alpha :as s])
+    [clojure.string :as str])
   (:import
-    (querqy.model
-      BooleanParent BooleanQuery BoostedTerm BoostQuery
-      Clause Clause$Occur DisjunctionMaxQuery
-      ExpandedQuery Input$SimpleInput MatchAllQuery
-      QuerqyQuery Query Term)))
+    (querqy.model BooleanParent BooleanQuery BoostQuery BoostedTerm Clause Clause$Occur DisjunctionMaxQuery ExpandedQuery Input$SimpleInput MatchAllQuery QuerqyQuery Query Term)))
 
 (def should Clause$Occur/SHOULD)
 (def must Clause$Occur/MUST)

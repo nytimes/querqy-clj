@@ -2,7 +2,7 @@
   (:require
     [com.nytimes.querqy.context :as context])
   (:import
-    (querqy.model Query ExpandedQuery)
+    (querqy.model ExpandedQuery Query)
     (querqy.rewrite ContextAwareQueryRewriter RewriteChain RewriterFactory SearchEngineRequestAdapter)))
 
 (defprotocol Parser
