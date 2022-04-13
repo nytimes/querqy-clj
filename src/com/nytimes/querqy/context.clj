@@ -1,7 +1,7 @@
 (ns com.nytimes.querqy.context
   (:import
-   (java.util Optional)
-   (querqy.rewrite SearchEngineRequestAdapter)))
+    (java.util Optional)
+    (querqy.rewrite SearchEngineRequestAdapter)))
 
 (defn optional
   ([] (Optional/empty))
@@ -22,14 +22,8 @@
 
 (def empty-context
   (map->Context
-   {:chain   []
-    :debug?  false
-    :params  {}
-    :context {}
-    }))
-
-(def debug-context
-  (assoc empty-context
-    ;; TODO add logger stuff
-    :debug? true))
+    {:chain   []
+     :debug?  false
+     :params  {}
+     :context {}}))
 
