@@ -41,11 +41,28 @@ steps:
   commands:
   - lein clj-kondo --lint src test
 
-- name: publish
+- name: publish-snapshot
   image: clojure:openjdk-17-lein
   when:
-    event: [ push, tag ]
+    event: [ push ]
     branch: [ main ]
+  depends_on:
+  - unit-test
+  - integration-test
+  - cljfmt
+  - lint
+  environment:
+    ARTIFACTORY_PASSWORD:
+      from_secret: artifactory_password
+    ARTIFACTORY_USERNAME:
+      from_secret: artifactory_username
+  commands:
+  - lein deploy
+
+- name: publish-release
+  image: clojure:openjdk-17-lein
+  when:
+    event: [ tag ]
   depends_on:
   - unit-test
   - integration-test
