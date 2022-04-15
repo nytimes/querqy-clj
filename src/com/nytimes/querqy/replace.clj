@@ -34,7 +34,6 @@
    ```
    "
   [& args]
-  (io/resource)
   (if (and (= 1 (count args)) (instance? URL (first args)))
     (replace-rewriter* (first args))
     (replace-rewriter* args)))
