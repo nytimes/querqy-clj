@@ -117,6 +117,7 @@
    (SynonymInstruction. (parse-string string) boost)))
 
 (defn boost
+  "Boost a matching term or query."
   [boost query]
   (when (zero? boost)
     (throw (IllegalArgumentException. "Cannot boost by 0")))
@@ -127,6 +128,7 @@
                        (abs boost))))
 
 (defn filter
+  "Add a filter to the query."
   [query]
   (FilterInstruction. (parse-query query)))
 
