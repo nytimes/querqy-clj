@@ -1,19 +1,20 @@
-(defproject com.nytimes/querqy "0.1.0-SNAPSHOT"
+(defproject com.nytimes/querqy-clj "0.1.0-SNAPSHOT"
   :description "Querqy in Clojure"
   :url "https://github.com/nytimes/querqy-clj"
-  :license {:name "Apache License", :url "http://www.apache.org/licenses/LICENSE-2.0"}
+  ;;:license {:name "Apache License", :url "http://www.apache.org/licenses/LICENSE-2.0"}
 
   :plugins [[com.github.clj-kondo/lein-clj-kondo "0.1.3"]
             [lein-cljfmt "0.8.0"]]
 
-  :repositories [["releases" {:url           "https://clojars.org/repo"
+
+  :repositories [["releases" {:url           "https://artifactory.nyt.net/artifactory/search-maven-releases"
                               :sign-releases false
-                              :username      [:env/clojars_username]
-                              :password      [:env/clojars_password]}]
-                 ["snapshots" {:url           "https://clojars.org/repo"
+                              :username      [:env/artifactory_username]
+                              :password      [:env/artifactory_password]}]
+                 ["snapshots" {:url           "https://artifactory.nyt.net/artifactory/search-maven-snapshots"
                                :sign-releases false
-                               :username      [:env/clojars_username]
-                               :password      [:env/clojars_password]}]]
+                               :username      [:env/artifactory_username]
+                               :password      [:env/artifactory_password]}]]
 
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/tools.logging "1.2.4"]
