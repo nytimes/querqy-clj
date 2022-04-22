@@ -84,10 +84,3 @@
     (rewrite dsl-rewriter "A10 B10") => (rewrite resource-rewriter "A10 B10")
     (rewrite dsl-rewriter "A11") => (rewrite resource-rewriter "A11")
     (rewrite dsl-rewriter "A11 B11") => (rewrite resource-rewriter "A11 B11")))
-
-
-
-
-
-
-
