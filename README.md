@@ -1,6 +1,6 @@
 # querqy-clj
 
-Querqy for Clojure.
+A library for rewriting search queries to improve relevance.
 
 ## Installation
 
@@ -33,15 +33,9 @@ filters or synonyms automatically.
 ---
 
 [1]: https://docs.querqy.org/
-
 [2]: doc/intro.md
-
 [3]: doc/replace-rewriter.md
-
 [4]: doc/common-rules-rewriter.md
-
 [5]: doc/emitting-queries.md
-
 [6]: doc/protocols.md
-
 [7]: doc/cljfmt.md
