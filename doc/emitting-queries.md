@@ -1,2 +1,0 @@
-# Emitting Queries
-
