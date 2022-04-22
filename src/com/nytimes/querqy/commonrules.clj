@@ -1,4 +1,4 @@
-(ns com.nytimes.querqy.rules
+(ns com.nytimes.querqy.commonrules
   "CommonRules based rewriter"
   (:refer-clojure :exclude [filter])
   (:require

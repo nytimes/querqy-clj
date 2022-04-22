@@ -1,10 +1,10 @@
-(ns com.nytimes.querqy.rules-test
+(ns com.nytimes.querqy.commonrules-test
   (:refer-clojure :exclude [filter])
   (:require
     [clojure.test :refer [deftest is]]
     [testit.core :refer [facts =>]]
     [clojure.datafy :refer [datafy]]
-    [com.nytimes.querqy.rules :as r :refer [match synonym boost filter delete]]
+    [com.nytimes.querqy.commonrules :as r :refer [match synonym boost filter delete]]
     [clojure.java.io :as io]
     [com.nytimes.querqy :as querqy])
   (:import

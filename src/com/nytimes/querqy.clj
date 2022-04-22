@@ -44,7 +44,7 @@
 
 (comment
   (require '[com.nytimes.querqy.replace :as rep])
-  (require '[com.nytimes.querqy.rules :as rule])
+  (require '[com.nytimes.querqy.commonrules :as rul])
 
   (def typos-rewriter
     (rep/replace-rewriter
@@ -53,9 +53,9 @@
       (rep/delete "cheap")))
 
   (def rules-rewriter
-    (rule/rules-rewriter
-      (rule/match (and "iphone" (not "case"))
-                  (rule/boost 100 {:term {:category "mobiles"}}))))
+    (rul/rules-rewriter
+      (rul/match (and "iphone" (not "case"))
+                  (rul/boost 100 {:term {:category "mobiles"}}))))
 
   (def chain (chain-of [typos-rewriter rules-rewriter]))
 
