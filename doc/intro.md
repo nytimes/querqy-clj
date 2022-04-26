@@ -12,10 +12,10 @@ rewriter.
 (require '[com.nytimes.querqy :as querqy])
 
 ;; The replace rewriter
-(require '[com.nytimes.querqy.replace :as rep])
+(require '[com.nytimes.querqy.replace :as r])
 
 ;; The common rules rewriter
-(require '[com.nytimes.querqy.commonrules :as rul])
+(require '[com.nytimes.querqy.commonrules :as c])
 ```
 
 ## Replace Rewriter
@@ -31,14 +31,14 @@ into a common form, and delete unhelpful query terms. In the below example we do
 
 ```clojure
 (def typos-rewriter
-  (rep/replace-rewriter
+  (r/replace-rewriter
 
-    (rep/replace "ihpone" (rep/with "iphone"))
+    (r/replace "ihpone" (r/with "iphone"))
 
-    (rep/replace (or "mobiles" "ombiles")
-      (rep/with "mobile"))
+    (r/replace (or "mobiles" "ombiles")
+      (r/with "mobile"))
 
-    (rep/delete "cheap")))
+    (r/delete "cheap")))
 ```
 
 ## Common Rules Rewriter
@@ -57,16 +57,16 @@ query rewriting we want to do. In our example, we have three rules:
 
 
 (def rules-rewriter
-  (rul/rules-rewriter
+  (c/rules-rewriter
 
-   (rul/match "apple phone"
-     (rul/synonym "iphone"))
+   (c/match "apple phone"
+     (c/synonym "iphone"))
 
-   (rul/match (and "iphone" (not "case"))
-      (rul/boost 100 {:term {:category "iphone"}}))
+   (c/match (and "iphone" (not "case"))
+      (c/boost 100 {:term {:category "iphone"}}))
 
-   (rul/match (and "iphone" "case")
-      (rul/boost 100 {:term {:category "iphone-accessories"}}))))
+   (c/match (and "iphone" "case")
+      (c/boost 100 {:term {:category "iphone-accessories"}}))))
 ```
 
 ## Rewriter Chain

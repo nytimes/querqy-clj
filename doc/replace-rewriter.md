@@ -26,19 +26,19 @@ and their corrections from your query logs.
 
 ### DSL
 
-The `querqy-clj` library ships with a DSL for creating a Replace Rewriter
+The `querqy-clj` library ships with a DSL for creating a replace rewriter
 from Clojure.
 
 ```clojure
-(require '[com.nytimes.querqy.replace :refer [replace-rewriter replace with delete]])
+(require '[com.nytimes.querqy.replace :as r])
 
-(replace-rewriter
+(r/replace-rewriter
   ;; Fix typos
-  (replace "abocado" (with "avocado"))
+  (r/replace "abocado" (r/with "avocado"))
 
   ;; Delete useless terms
-  (delete "recipe")
-  (delete "recipes"))
+  (r/delete "recipe")
+  (r/delete "recipes"))
 ```
 
 [1]: https://docs.querqy.org/querqy/rewriters/replace.html

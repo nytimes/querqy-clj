@@ -1,51 +1,91 @@
 # Common Rules Rewriter
 
-- Overview
-- Matching / Rules
-- Building a Vocabulary for your domain
-- New syntax / unknown edge cases / unclear how far you can push templates
+The common rules rewriter is useful to a transform user's query into something
+which more closely matches the documents indexed.
 
-## Matching
+## Usage
 
-- String / Boolean Input
+### Querqy File
 
-## Transformations
+You can read in a text file written using Querqy's [CommonRulesRewriter][1] syntax.
 
-## delete
+```clojure
+(require '[com.nytimes.querqy.commonrules :refer [rules-rewriter]])
+(require '[clojure.java.io :as io])
 
-## synonym
+(rules-rewriter (io/resource "common-rules.txt"))
+```
 
-## boost
+### DSL
 
-## filter
+The `querqy-clj` library ships with a DSL for creating a common rules rewriter from Clojure.
 
-## Building a Vocabulary
+```clojure
+(require '[com.nytimes.querqy.commonrules :as c])
+
+(def rewriter
+  (c/rules-rewriter
+   (c/match "apple phone"
+     (c/synonym "iphone"))
+
+   (c/match "nikon d500"
+     (c/filter {:term {:category "cameras"}}))))
+```
+
+## Building a Language
+
+You can use the transform functions to build your own custom set of transform
+which make sense for your domain. This can simplify complex transforms and also
+create a vocabulary for the intent of a given transform.
+
+The next two sub-sections contain examples.
 
 ### Simple
 
+When multiple terms all refer to the same entity, it can get tedious to write
+out all of the forms:
+
+```clojure
+(c/match
+ "x" 
+  (c/synonym "y")
+  (c/synonym "z"))
+(c/match "y" 
+  (c/synonym "x")
+  (c/synonym "z"))
+(c/match "z" 
+  (c/synonym "x")
+  (c/synonym "y"))
+```
+
+Instead, it would be great to just write this information in a single rule.
+Let's assume we have a domain where we have many different terms for the same
+entity. We will use recipes here, since there are many different terms for food.
+
+We can capture this idea by creating a simple synonyms rule.
+
 ```clojure
 (require '[com.nytimes.querqy :as querqy])
-(require '[com.nytimes.querqy.replace :as rep])
-(require '[com.nytimes.querqy.rules :as rule])
+(require '[com.nytimes.querqy.rules :as c])
 
 (defn synonyms
   [& strings]
   (let [strings (set strings)]
     (for [string strings]
       (let [syns (map rule/synonym (disj strings string))]
-        (rule/match* string syns)))))
+        (c/match* string syns)))))
 
 
-(rule/rules-rewriter
-  (synonyms "chickpea" "chickpeas" "garbanzo bean" "garbanzo beans"))
+(c/rules-rewriter
+  (synonyms "bread" "toast")
+  (synonyms "chickpea" "garbanzo bean"))
 ```
 
 ### Domain Specific
 
 ```clojure
 (require '[com.nytimes.querqy :as querqy])
-(require '[com.nytimes.querqy.replace :as rep])
-(require '[com.nytimes.querqy.rules :as rule])
+(require '[com.nytimes.querqy.commonrules :as c])
 
 (defn boost-movies [& {:keys [with by]}]
   (rule/boost by {:bool {:must [{:term {:type "movie"}}
@@ -124,3 +164,4 @@
     :weight 10000.0}]}}
 ```
 
+[1]: https://querqy.org/docs/querqy/rewriters/common-rules.html#structure-of-a-rule
