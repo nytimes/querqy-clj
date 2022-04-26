@@ -88,23 +88,23 @@ We can capture this idea by creating a simple synonyms rule.
 (require '[com.nytimes.querqy.commonrules :as c])
 
 (defn boost-movies [& {:keys [with by]}]
-  (rule/boost by {:bool {:must [{:term {:type "movie"}}
+  (c/boost by {:bool {:must [{:term {:type "movie"}}
                                 {:term {:actors with}}]}}))
 
 (defn boost-series [& {:keys [with by]}]
-  (rule/boost by {:bool {:must [{:term {:type "series"}}
+  (c/boost by {:bool {:must [{:term {:type "series"}}
                                 {:term {:actors with}}]}}))
 
 (defn highlight-movie [movie]
-  (rule/boost 10000 {:match {:title movie}}))
+  (c/boost 10000 {:match {:title movie}}))
 
 (def tmdb-rules
-  (rule/rules-rewriter
-    (rule/match "christian bale"
+  (c/rules-rewriter
+    (c/match "christian bale"
                 (boost-movies :with "Christian Bale" :by 3)
                 (boost-series :with "Christian Bale" :by 1.5))
 
-    (rule/match (and "christian bale" "batman")
+    (c/match (and "christian bale" "batman")
                 (highlight-movie "Batman Begins"))))
 
 
