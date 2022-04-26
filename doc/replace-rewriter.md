@@ -30,8 +30,7 @@ The `querqy-clj` library ships with a DSL for creating a Replace Rewriter
 from Clojure.
 
 ```clojure
-(require '[com.nytimes.querqy.replace
-           :refer [replace-rewriter replace with delete]])
+(require '[com.nytimes.querqy.replace :refer [replace-rewriter replace with delete]])
 
 (replace-rewriter
   ;; Fix typos

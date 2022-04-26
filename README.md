@@ -5,7 +5,7 @@ A library for rewriting search queries to improve relevance.
 ## Installation
 
 ```clojure
-[com.nytimes/querqy "0.0.0"]
+[com.nytimes/querqy "0.1.1"]
 ```
 
 ## What is Querqy?
@@ -32,3 +32,6 @@ filters or synonyms automatically.
 [2]: doc/intro.md
 [3]: doc/replace-rewriter.md
 [4]: doc/common-rules-rewriter.md
+
+<!--  LocalWords:  Rewriter Querqy
+ -->
