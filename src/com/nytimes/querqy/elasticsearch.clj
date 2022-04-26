@@ -115,19 +115,16 @@
 
   RawQuery
   (emit* [query opts]
-    (prn query)
     (:query query))
 
   BoostQuery
   (emit* [query opts]
     ;; Create a function_score wight query
-    (prn query opts)
     {:filter (emit* (.getQuery query) opts)
      :weight (.getBoost query)})
 
   ExpandedQuery
   (emit* [query opts]
-    (prn query)
     (let [default-bool  {:bool {:must [], :should [], :must_not [], :filter []}}
           user-query    (emit* (.getUserQuery query) opts)
           user-query    (if (some #{:bool} (keys user-query))

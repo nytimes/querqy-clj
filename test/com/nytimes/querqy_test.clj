@@ -1,20 +1,20 @@
 (ns com.nytimes.querqy-test
   (:require [clojure.test :refer [deftest is]]
             [com.nytimes.querqy :as q]
-            [com.nytimes.querqy.rules :as rul]
-            [com.nytimes.querqy.replace :as rep]
+            [com.nytimes.querqy.commonrules :as c]
+            [com.nytimes.querqy.replace :as r]
             [testit.core :refer [facts =>]]))
 
 (def typos-rewriter
-  (rep/replace-rewriter
-    (rep/replace "ombiles" (rep/with "mobile"))
-    (rep/replace "ihpone" (rep/with "iphone"))
-    (rep/delete "cheap")))
+  (r/replace-rewriter
+    (r/replace "ombiles" (r/with "mobile"))
+    (r/replace "ihpone" (r/with "iphone"))
+    (r/delete "cheap")))
 
 (def rules-rewriter
-  (rul/rules-rewriter
-    (rul/match (and "iphone" (not "case"))
-               (rul/boost 100 {:term {:category "mobiles"}}))))
+  (c/rules-rewriter
+    (c/match (and "iphone" (not "case"))
+               (c/boost 100 {:term {:category "mobiles"}}))))
 
 (def chain (q/chain-of [typos-rewriter rules-rewriter]))
 
