@@ -1,7 +1,7 @@
 (ns com.nytimes.querqy.commonrules-test
   (:refer-clojure :exclude [filter])
   (:require
-    [clojure.test :refer [deftest is]]
+    [clojure.test :refer [deftest is testing]]
     [testit.core :refer [facts =>]]
     [clojure.datafy :refer [datafy]]
     [com.nytimes.querqy.commonrules :as r :refer [match synonym boost filter delete]]
@@ -84,3 +84,13 @@
     (rewrite dsl-rewriter "A10 B10") => (rewrite resource-rewriter "A10 B10")
     (rewrite dsl-rewriter "A11") => (rewrite resource-rewriter "A11")
     (rewrite dsl-rewriter "A11 B11") => (rewrite resource-rewriter "A11 B11")))
+
+(deftest match-inputs-test
+  (testing "match accepts instructions or a list of instructions"
+    (is (fn? (match "a"
+               (synonym "b"))))
+    (is (fn? (match "a"
+               [(synonym "b") (synonym "c")])))
+    (is (fn? (match "a"
+               [(synonym "b") (synonym "c")]
+               [(boost 2 "d") (boost 2 "e")])))))
