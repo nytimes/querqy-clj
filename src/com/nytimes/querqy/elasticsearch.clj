@@ -163,43 +163,32 @@
 ;; ----------------------------------------------------------------------
 ;; Helpers
 
+(defn add-must
+ "Add a must clause onto the inner boolean query."
+ [q & clauses]
+ (update-in q [:function_score :query :bool :must] into clauses))
 
-;(defn- vconj
-;  "Like conj but always coerces to vectors."
-;  ([] [])
-;  ([coll] (vec coll))
-;  ([coll x] (conj (vec coll) x))
-;  ([coll x & xs]
-;   (if xs
-;     (recur (conj (vec coll) x) (first xs) (rest xs))
-;     (conj (vec coll) x))))
-;
-;(defn add-must
-;  "Add a must clause onto the inner boolean query."
-;  [q clause]
-;  (update-in q [:function_score :query :bool :must] vconj clause))
-;
-;(defn add-should
-;  "Add a should clause onto the inner boolean query."
-;  [q clause]
-;  (update-in q [:function_score :query :bool :should] vconj clause))
-;
-;(defn add-must-not
-;  "Add a must_not clause onto the inner boolean query."
-;  [q clause]
-;  (update-in q [:function_score :query :bool :must_not] vconj clause))
-;
-;(defn add-filter
-;  "Add a filter clause onto the inner boolean query."
-;  [q clause]
-;  (update-in q [:function_score :query :bool :filter] vconj clause))
-;
-;(defn set-minimum-should-match
-;  "Set the minimum_should_match value for the inner boolean query."
-;  [q min-match]
-;  (assoc-in q [:function_score :query :bool :minimum_should_match] min-match))
-;
-;(defn add-boost
-;  "Add a boosting function to the outre function score query."
-;  [q clause]
-;  (update-in q [:function_score :functions] vconj clause))
+(defn add-should
+ "Add a should clause onto the inner boolean query."
+ [q & clauses]
+ (update-in q [:function_score :query :bool :should] into clauses))
+
+(defn add-must-not
+ "Add a must_not clause onto the inner boolean query."
+ [q & clauses]
+ (update-in q [:function_score :query :bool :must_not] into clauses))
+
+(defn add-filter
+ "Add a filter clause onto the inner boolean query."
+ [q & clauses]
+ (update-in q [:function_score :query :bool :filter] into clauses))
+
+(defn set-minimum-should-match
+ "Set the minimum_should_match value for the inner boolean query."
+ [q min-match]
+ (assoc-in q [:function_score :query :bool :minimum_should_match] min-match))
+
+(defn add-boost
+ "Add a boosting function to the outre function score query."
+ [q & clauses]
+ (update-in q [:function_score :functions] into clauses))

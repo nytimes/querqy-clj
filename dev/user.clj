@@ -43,3 +43,15 @@
   :functions
   [{:filter {:ids {:values ["5678"]}}, :weight 1.0E37}
    {:filter {:ids {:values ["12345"]}}, :weight 1.0E38}]}}
+
+
+(def base
+  {:function_score
+   {:query
+    {:bool {:must     [],
+            :should   [],
+            :must_not [],
+            :filter   []}},
+    :functions
+    [{:filter {:ids {:values ["5678"]}}, :weight 1.0E37}
+     {:filter {:ids {:values ["12345"]}}, :weight 1.0E38}]}})
