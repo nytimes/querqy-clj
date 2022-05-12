@@ -5,7 +5,7 @@ A library for rewriting search queries to improve relevance.
 ## Installation
 
 ```clojure
-[com.nytimes/querqy "0.2.0"]
+[com.nytimes/querqy-clj "0.3.0"]
 ```
 
 ## What is Querqy?
