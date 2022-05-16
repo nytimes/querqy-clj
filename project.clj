@@ -1,11 +1,10 @@
-(defproject com.nytimes/querqy-clj "0.4.2-SNAPSHOT"
+(defproject com.nytimes/querqy-clj "0.5.0-SNAPSHOT"
   :description "Querqy in Clojure"
   :url "https://github.com/nytimes/querqy-clj"
   ;;:license {:name "Apache License", :url "http://www.apache.org/licenses/LICENSE-2.0"}
 
   :plugins [[com.github.clj-kondo/lein-clj-kondo "0.1.3"]
             [lein-cljfmt "0.8.0"]]
-
 
   :repositories [["releases" {:url           "https://artifactory.nyt.net/artifactory/search-maven-releases"
                               :sign-releases false
