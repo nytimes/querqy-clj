@@ -95,7 +95,7 @@
   {:style/indent 1}
   ;; TODO LEFT/ RIGHT boundaries
   [head & tail]
-  `(match* '~head (flatten (vector ~@tail))))
+  `(match* '~head (vec (flatten (vector ~@tail)))))
 
 (defn- parse-string [string] (mapv #(LineParser/parseTerm %) (str/split string #"\s+")))
 
