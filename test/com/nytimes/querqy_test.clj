@@ -216,3 +216,99 @@
            :must_not [],
            :filter   []}},
          :functions []}}))
+
+(deftest elasticsearch-match-opts
+  (let [rewriter  (c/rules-rewriter (c/match "a" (c/synonym "b")))
+        emit-opts {:match/fields                              ["f1"]
+                   :match/anayzer                             :custom_analyzer
+                   :match/auto_generate_synonyms_phrase_query false
+                   :match/fuzziness                           "auto"
+                   :match/max_expansions                      40
+                   :match/prefix_length                       1
+                   :match/fuzzy_transpositions                true
+                   :match/fuzzy_rewrite                       :constant_score
+                   :match/lenient                             false
+                   :match/operator                            :and
+                   :match/minimum_should_match                "100%"
+                   :match/zero_terms_query                    "all"}]
+    (fact "match options propagate down to the query"
+      (q/emit (q/rewrite rewriter "a") emit-opts)
+      => {:function_score
+          {:query
+           {:bool
+            {:must     [],
+             :should
+             [{:dis_max
+               {:queries
+                [{:match
+                  {"f1"
+                   {:fuzzy_transpositions                true,
+                    :fuzzy_rewrite                       :constant_score,
+                    :lenient                             false,
+                    :max_expansions                      40,
+                    :prefix_length                       1,
+                    :anayzer                             :custom_analyzer,
+                    :zero_terms_query                    "all",
+                    :auto_generate_synonyms_phrase_query false,
+                    :minimum_should_match                "100%",
+                    :query                               "a",
+                    :operator                            :and,
+                    :fuzziness                           "auto"}}}
+                 {:match
+                  {"f1"
+                   {:fuzzy_transpositions                true,
+                    :fuzzy_rewrite                       :constant_score,
+                    :lenient                             false,
+                    :max_expansions                      40,
+                    :prefix_length                       1,
+                    :anayzer                             :custom_analyzer,
+                    :zero_terms_query                    "all",
+                    :auto_generate_synonyms_phrase_query false,
+                    :minimum_should_match                "100%",
+                    :query                               "b",
+                    :operator                            :and,
+                    :fuzziness                           "auto"}}}]}}],
+             :must_not [],
+             :filter   []}},
+           :functions []}})
+
+    (fact "invalid or unknown options do not propagate"
+      (q/emit (q/rewrite rewriter "a") (assoc emit-opts :match/bad-setting :fail))
+      => {:function_score
+          {:query
+           {:bool
+            {:must     [],
+             :should
+             [{:dis_max
+               {:queries
+                [{:match
+                  {"f1"
+                   {:fuzzy_transpositions                true,
+                    :fuzzy_rewrite                       :constant_score,
+                    :lenient                             false,
+                    :max_expansions                      40,
+                    :prefix_length                       1,
+                    :anayzer                             :custom_analyzer,
+                    :zero_terms_query                    "all",
+                    :auto_generate_synonyms_phrase_query false,
+                    :minimum_should_match                "100%",
+                    :query                               "a",
+                    :operator                            :and,
+                    :fuzziness                           "auto"}}}
+                 {:match
+                  {"f1"
+                   {:fuzzy_transpositions                true,
+                    :fuzzy_rewrite                       :constant_score,
+                    :lenient                             false,
+                    :max_expansions                      40,
+                    :prefix_length                       1,
+                    :anayzer                             :custom_analyzer,
+                    :zero_terms_query                    "all",
+                    :auto_generate_synonyms_phrase_query false,
+                    :minimum_should_match                "100%",
+                    :query                               "b",
+                    :operator                            :and,
+                    :fuzziness                           "auto"}}}]}}],
+             :must_not [],
+             :filter   []}},
+           :functions []}})))
