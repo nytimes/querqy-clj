@@ -1,15 +1,16 @@
 (ns com.nytimes.querqy.commonrules-test
   (:refer-clojure :exclude [filter])
   (:require
-    [clojure.test :refer [deftest is testing]]
-    [testit.core :refer [facts =>]]
-    [clojure.datafy :refer [datafy]]
-    [com.nytimes.querqy.commonrules :as r :refer [match synonym boost filter delete]]
-    [clojure.java.io :as io]
-    [com.nytimes.querqy :as querqy])
+   [clojure.test :refer [deftest is testing]]
+   [testit.core :refer [facts =>]]
+   [clojure.datafy :refer [datafy]]
+   [com.nytimes.querqy.commonrules :as r :refer [match match* synonym boost filter delete]]
+   [clojure.java.io :as io]
+   [com.nytimes.querqy :as querqy]
+   [com.nytimes.querqy :as q])
   (:import
-    (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
-    (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type)))
+   (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
+   (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type)))
 
 (defn parsed
   "Small helper function to convert the list of BooleanInputElements back into sexpr format.
@@ -94,3 +95,56 @@
     (is (fn? (match "a"
                [(synonym "b") (synonym "c")]
                [(boost 2 "d") (boost 2 "e")])))))
+
+
+(deftest rule-builder-test
+  (let [mutual-synonyms (fn [terms]
+                          (for [term terms]
+                            (let [tail (map synonym (disj terms term))]
+                              (match* term tail))))
+        rewriter        (r/rules-rewriter (mutual-synonyms #{"a" "b" "c"}))]
+    (facts "custom rule builders"
+      (rewrite rewriter "a") =>
+      {:type       querqy.model.ExpandedQuery,
+       :user-query {:type  querqy.model.Query,
+                    :occur :should,
+                    :clauses
+                    [{:type  querqy.model.DisjunctionMaxQuery,
+                      :occur :should,
+                      :clauses
+                      [{:type querqy.model.Term, :field nil, :value "a"}
+                       {:type querqy.model.Term, :field nil, :value "c"}
+                       {:type querqy.model.Term, :field nil, :value "b"}]}]},
+       :boost-up   [],
+       :boost-down [],
+       :filter     []}
+
+      (rewrite rewriter "b") =>
+      {:type       querqy.model.ExpandedQuery,
+       :user-query {:type  querqy.model.Query,
+                    :occur :should,
+                    :clauses
+                    [{:type  querqy.model.DisjunctionMaxQuery,
+                      :occur :should,
+                      :clauses
+                      [{:type querqy.model.Term, :field nil, :value "b"}
+                       {:type querqy.model.Term, :field nil, :value "c"}
+                       {:type querqy.model.Term, :field nil, :value "a"}]}]},
+       :boost-up   [],
+       :boost-down [],
+       :filter     []}
+
+      (rewrite rewriter "c") =>
+      {:type       querqy.model.ExpandedQuery,
+       :user-query {:type  querqy.model.Query,
+                    :occur :should,
+                    :clauses
+                    [{:type  querqy.model.DisjunctionMaxQuery,
+                      :occur :should,
+                      :clauses
+                      [{:type querqy.model.Term, :field nil, :value "c"}
+                       {:type querqy.model.Term, :field nil, :value "b"}
+                       {:type querqy.model.Term, :field nil, :value "a"}]}]},
+       :boost-up   [],
+       :boost-down [],
+       :filter     []})))
