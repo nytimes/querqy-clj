@@ -142,7 +142,7 @@
           (assoc-in [:bool :boost] (double (/ 1 (count clauses))))))))
 
   RawQuery
-  (emit* [_opts query]
+  (emit* [query _opts]
     (:query query))
 
   BoostQuery
