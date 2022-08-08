@@ -1,4 +1,4 @@
-(defproject com.nytimes/querqy-clj "0.6.1-SNAPSHOT"
+(defproject com.nytimes/querqy-clj "0.7.0-SNAPSHOT"
   :description "Querqy in Clojure"
   :url "https://github.com/nytimes/querqy-clj"
   :license {:name "Apache License",
