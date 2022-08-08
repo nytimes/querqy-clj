@@ -41,7 +41,7 @@ steps:
   commands:
   - lein clj-kondo --lint src test
 
-- name: publish-snapshot
+- name: snapshot
   image: clojure:openjdk-17-lein
   when:
     event: [ push ]
@@ -51,8 +51,13 @@ steps:
   - integration-test
   - cljfmt
   - lint
+  environment:
+    CLOJARS_USERNAME:
+      from_secret: clojars_username
+    CLOJARS_PASSWORD:
+      from_secret: clojars_password
   commands:
-  - lein deploy
+  - lein deploy snapshots
 
 - name: publish-release
   image: clojure:openjdk-17-lein
@@ -63,5 +68,10 @@ steps:
   - integration-test
   - cljfmt
   - lint
+  environment:
+    CLOJARS_USERNAME:
+      from_secret: clojars_username
+    CLOJARS_PASSWORD:
+      from_secret: clojars_password
   commands:
-  - lein deploy
+  - lein deploy releases
