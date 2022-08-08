@@ -3,6 +3,8 @@ querqy-clj
 
 A library for rewriting search queries to improve relevance.
 
+**Status**: alpha, but used in production.
+
 Installation
 ============
 
