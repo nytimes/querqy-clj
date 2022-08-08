@@ -3,13 +3,18 @@ querqy-clj
 
 A library for rewriting search queries to improve relevance.
 
+
+Clojars dependency:
+
+[![Clojars Project](https://clojars.org/com.nytimes/querqy-clj/latest-version.svg)](https://clojars.org/com.nytimes/querqy-clj)
+
 **Status**: alpha, but used in production.
 
 Installation
 ============
 
 ```clojure
-[com.nytimes/querqy-clj "0.0.0"]
+[com.nytimes/querqy-clj "$VERSION"]
 ```
 
 What is Querqy?
