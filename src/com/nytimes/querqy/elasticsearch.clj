@@ -142,7 +142,7 @@
           (assoc-in [:bool :boost] (double (/ 1 (count clauses))))))))
 
   RawQuery
-  (emit* [query opts]
+  (emit* [_opts query]
     (:query query))
 
   BoostQuery
@@ -172,9 +172,6 @@
       (-> default-query
           (update-in [:function_score :query :bool :filter] into filters)
           (update-in [:function_score :functions] into functions)))))
-
-(comment
-  (require '[com.nytimes.querqy.model :as m]))
 
 ;; ----------------------------------------------------------------------
 ;;

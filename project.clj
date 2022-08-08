@@ -13,7 +13,7 @@
                                :username      [:env/clojars_username]
                                :password      [:env/clojars_password]}]]
 
-  :plugins [[com.github.clj-kondo/lein-clj-kondo "0.1.3"]
+  :plugins [[com.github.clj-kondo/lein-clj-kondo "0.2.1"]
             [lein-cljfmt "0.8.0"]]
 
   :dependencies [[org.clojure/clojure "1.11.1"]

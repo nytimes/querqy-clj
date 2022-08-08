@@ -6,8 +6,7 @@
    [clojure.datafy :refer [datafy]]
    [com.nytimes.querqy.commonrules :as r :refer [match match* synonym boost filter delete]]
    [clojure.java.io :as io]
-   [com.nytimes.querqy :as querqy]
-   [com.nytimes.querqy :as q])
+   [com.nytimes.querqy :as querqy])
   (:import
    (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
    (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type)))

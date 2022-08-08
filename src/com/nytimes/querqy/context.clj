@@ -18,7 +18,7 @@
   (getFloatRequestParam [_ k] (some-> (get params k) float optional))
   (getDoubleRequestParam [_ k] (some-> (get params k) double optional))
   (isDebugQuery [_] debug?)
-  (getInfoLoggingContext [this] (optional)))
+  (getInfoLoggingContext [_] (optional)))
 
 (def empty-context
   (map->Context

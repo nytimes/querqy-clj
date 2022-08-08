@@ -71,9 +71,9 @@
 
 (defrecord RawQuery [parent occur query generated?]
   QuerqyQuery
-  (clone [this new-parent]
+  (clone [_ new-parent]
     (RawQuery. new-parent occur query generated?))
-  (clone [this new-parent generated?]
+  (clone [_ new-parent generated?]
     (RawQuery. new-parent occur query generated?)))
 
 (defn rawq? [obj] (instance? RawQuery obj))

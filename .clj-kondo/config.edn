@@ -1,0 +1,1 @@
+{:lint-as {com.nytimes.querqy.elasticsearch/forv clojure.core/for}}
