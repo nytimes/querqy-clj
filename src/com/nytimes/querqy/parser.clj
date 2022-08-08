@@ -1,8 +1,8 @@
 (ns com.nytimes.querqy.parser
   (:require
-    [com.nytimes.querqy.protocols :as p])
+   [com.nytimes.querqy.protocols :as p])
   (:import
-    (querqy.parser FieldAwareWhiteSpaceQuerqyParser QuerqyParser WhiteSpaceQuerqyParser)))
+   (querqy.parser FieldAwareWhiteSpaceQuerqyParser QuerqyParser WhiteSpaceQuerqyParser)))
 
 (def whitespace-parser
   (WhiteSpaceQuerqyParser.))

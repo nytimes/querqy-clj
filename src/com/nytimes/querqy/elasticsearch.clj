@@ -34,11 +34,11 @@
     - `:match/zero_terms_query`
     - `:dis_max/tie_breaker`"
   (:require
-    [com.nytimes.querqy.model :as m]
-    [com.nytimes.querqy.protocols :as p])
+   [com.nytimes.querqy.model :as m]
+   [com.nytimes.querqy.protocols :as p])
   (:import
-    (com.nytimes.querqy.model RawQuery)
-    (querqy.model BooleanQuery BoostQuery BoostedTerm DisjunctionMaxQuery ExpandedQuery MatchAllQuery Term)))
+   (com.nytimes.querqy.model RawQuery)
+   (querqy.model BooleanQuery BoostQuery BoostedTerm DisjunctionMaxQuery ExpandedQuery MatchAllQuery Term)))
 
 (defprotocol InternalEmitter
   (emit* [this opts]))
@@ -73,9 +73,9 @@
           query      (str (.getValue term))]
       (when-not (seq fields)
         (throw (IllegalArgumentException.
-                 (print-str "No fields found for term."
-                            "The term must either contain"
-                            "a field value or you must set `:match/fields`"))))
+                (print-str "No fields found for term."
+                           "The term must either contain"
+                           "a field value or you must set `:match/fields`"))))
       (forv [field fields] {:match {field (merge match-opts {:query query})}})))
 
   BoostedTerm
@@ -88,9 +88,9 @@
           boost      (.getBoost term)]
       (when-not (seq fields)
         (throw (IllegalArgumentException.
-                 (print-str "No fields found for term."
-                            "The term must either contain"
-                            "a field value or you must set `:match/fields`"))))
+                (print-str "No fields found for term."
+                           "The term must either contain"
+                           "a field value or you must set `:match/fields`"))))
       (forv [field fields] {:match {field (merge match-opts {:boost boost, :query query})}})))
 
   MatchAllQuery
@@ -113,8 +113,6 @@
         ;; build dis_max query
         (cond-> {:dis_max {:queries clauses}}
           tie_breaker (assoc-in [:dis_max :tie_breaker] tie_breaker)))))
-
-
 
   BooleanQuery
   (emit* [query {:keys [::parent] :as opts}]
@@ -176,8 +174,7 @@
           (update-in [:function_score :functions] into functions)))))
 
 (comment
-  (require '[com.nytimes.querqy.model :as m])
-  )
+  (require '[com.nytimes.querqy.model :as m]))
 
 ;; ----------------------------------------------------------------------
 ;;
@@ -194,31 +191,31 @@
 ;; Helpers
 
 (defn add-must
- "Add a must clause onto the inner boolean query."
- [q & clauses]
- (update-in q [:function_score :query :bool :must] into clauses))
+  "Add a must clause onto the inner boolean query."
+  [q & clauses]
+  (update-in q [:function_score :query :bool :must] into clauses))
 
 (defn add-should
- "Add a should clause onto the inner boolean query."
- [q & clauses]
- (update-in q [:function_score :query :bool :should] into clauses))
+  "Add a should clause onto the inner boolean query."
+  [q & clauses]
+  (update-in q [:function_score :query :bool :should] into clauses))
 
 (defn add-must-not
- "Add a must_not clause onto the inner boolean query."
- [q & clauses]
- (update-in q [:function_score :query :bool :must_not] into clauses))
+  "Add a must_not clause onto the inner boolean query."
+  [q & clauses]
+  (update-in q [:function_score :query :bool :must_not] into clauses))
 
 (defn add-filter
- "Add a filter clause onto the inner boolean query."
- [q & clauses]
- (update-in q [:function_score :query :bool :filter] into clauses))
+  "Add a filter clause onto the inner boolean query."
+  [q & clauses]
+  (update-in q [:function_score :query :bool :filter] into clauses))
 
 (defn set-minimum-should-match
- "Set the minimum_should_match value for the inner boolean query."
- [q min-match]
- (assoc-in q [:function_score :query :bool :minimum_should_match] min-match))
+  "Set the minimum_should_match value for the inner boolean query."
+  [q min-match]
+  (assoc-in q [:function_score :query :bool :minimum_should_match] min-match))
 
 (defn add-boost
- "Add a boosting function to the outre function score query."
- [q & clauses]
- (update-in q [:function_score :functions] into clauses))
+  "Add a boosting function to the outre function score query."
+  [q & clauses]
+  (update-in q [:function_score :functions] into clauses))

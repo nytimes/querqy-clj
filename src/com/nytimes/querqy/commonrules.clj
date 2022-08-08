@@ -2,22 +2,22 @@
   "CommonRules based rewriter"
   (:refer-clojure :exclude [filter])
   (:require
-    [clojure.java.io :as io]
-    [clojure.string :as str]
-    [com.nytimes.querqy.model :as model]
-    [com.nytimes.querqy.parser :as parser])
+   [clojure.java.io :as io]
+   [clojure.string :as str]
+   [com.nytimes.querqy.model :as model]
+   [com.nytimes.querqy.parser :as parser])
   (:import
-    (java.io Reader)
-    (java.net URL)
-    (java.util List UUID)
-    (querqy.model Input Input$BooleanInput Input$SimpleInput)
-    (querqy.parser QuerqyParser)
-    (querqy.rewrite RewriterFactory)
-    (querqy.rewrite.commonrules CommonRulesRewriter LineParser QuerqyParserFactory SimpleCommonRulesParser WhiteSpaceQuerqyParserFactory)
-    (querqy.rewrite.commonrules.model BoostInstruction BoostInstruction$BoostDirection DeleteInstruction FilterInstruction Instructions SynonymInstruction TrieMapRulesCollectionBuilder)
-    (querqy.rewrite.commonrules.select SelectionStrategyFactory)
-    (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
-    (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type BooleanInputLiteral)))
+   (java.io Reader)
+   (java.net URL)
+   (java.util List UUID)
+   (querqy.model Input Input$BooleanInput Input$SimpleInput)
+   (querqy.parser QuerqyParser)
+   (querqy.rewrite RewriterFactory)
+   (querqy.rewrite.commonrules CommonRulesRewriter LineParser QuerqyParserFactory SimpleCommonRulesParser WhiteSpaceQuerqyParserFactory)
+   (querqy.rewrite.commonrules.model BoostInstruction BoostInstruction$BoostDirection DeleteInstruction FilterInstruction Instructions SynonymInstruction TrieMapRulesCollectionBuilder)
+   (querqy.rewrite.commonrules.select SelectionStrategyFactory)
+   (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
+   (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type BooleanInputLiteral)))
 
 (defprotocol CommonRulesRewriterBuilder
   (common-rules-rewriter* [this]))
@@ -26,7 +26,6 @@
   nil
   (common-rules-rewriter* [_]
     (throw (IllegalArgumentException. "Must provide rules to rules-rewriter"))))
-
 
 (defn- flatten-rules
   [fns]
@@ -49,8 +48,8 @@
   (proxy [RewriterFactory] [(str (UUID/randomUUID))]
     (createRewriter [_ _]
       (CommonRulesRewriter.
-        rules
-        SelectionStrategyFactory/DEFAULT_SELECTION_STRATEGY))
+       rules
+       SelectionStrategyFactory/DEFAULT_SELECTION_STRATEGY))
     (getCacheableGenerableTerms [] #{})))
 
 ;; ----------------------------------------------------------------------
@@ -64,10 +63,10 @@
                            ignore-case   true
                            parser        (WhiteSpaceQuerqyParserFactory.)}}]
    (let [rules-parser (SimpleCommonRulesParser.
-                        ^Reader stream
-                        ^boolean boolean-input
-                        ^QuerqyParserFactory parser
-                        ^boolean ignore-case)]
+                       ^Reader stream
+                       ^boolean boolean-input
+                       ^QuerqyParserFactory parser
+                       ^boolean ignore-case)]
      (.parse rules-parser))))
 
 (extend-protocol CommonRulesRewriterBuilder

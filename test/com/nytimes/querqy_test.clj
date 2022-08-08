@@ -7,14 +7,14 @@
 
 (def typos-rewriter
   (r/replace-rewriter
-    (r/replace "ombiles" (r/with "mobile"))
-    (r/replace "ihpone" (r/with "iphone"))
-    (r/delete "cheap")))
+   (r/replace "ombiles" (r/with "mobile"))
+   (r/replace "ihpone" (r/with "iphone"))
+   (r/delete "cheap")))
 
 (def rules-rewriter
   (c/rules-rewriter
-    (c/match (and "iphone" (not "case"))
-               (c/boost 100 {:term {:category "mobiles"}}))))
+   (c/match (and "iphone" (not "case"))
+     (c/boost 100 {:term {:category "mobiles"}}))))
 
 (def chain (q/chain-of [typos-rewriter rules-rewriter]))
 
@@ -96,7 +96,7 @@
                  :filter   []}},
          :functions []}})
 
-   (fact "(f1:a | f1:x)"
+  (fact "(f1:a | f1:x)"
     (str->query "a")
     => {:function_score
         {:query
@@ -111,20 +111,20 @@
          :functions []}})
 
   (fact "(f1:j | f1:q | (+f1:s +f1:t)^0.5)"
-      (str->query "j")
-      => {:function_score
-          {:query     {:bool
-                       {:must     [],
-                        :should   [{:dis_max
-                                    {:queries
-                                     [{:match {"f1" {:query "j"}}}
-                                      {:match {"f1" {:query "q"}}}
-                                      {:bool {:boost 0.5,
-                                              :must  [{:match {"f1" {:query "s"}}}
-                                                      {:match {"f1" {:query "t"}}}]}}]}}],
-                        :must_not [],
-                        :filter   []}},
-           :functions []}})
+    (str->query "j")
+    => {:function_score
+        {:query     {:bool
+                     {:must     [],
+                      :should   [{:dis_max
+                                  {:queries
+                                   [{:match {"f1" {:query "j"}}}
+                                    {:match {"f1" {:query "q"}}}
+                                    {:bool {:boost 0.5,
+                                            :must  [{:match {"f1" {:query "s"}}}
+                                                    {:match {"f1" {:query "t"}}}]}}]}}],
+                      :must_not [],
+                      :filter   []}},
+         :functions []}})
 
   (fact "(f1:a | f1:x) f1:b"
     (str->query "a b")

@@ -2,17 +2,17 @@
   "Replace rewriter: https://docs.querqy.org/querqy/rewriters/replace.html"
   (:refer-clojure :exclude [replace])
   (:require
-    [clojure.java.io :as io]
-    [clojure.string :as str])
+   [clojure.java.io :as io]
+   [clojure.string :as str])
   (:import
-    (java.io InputStreamReader)
-    (java.net URL)
-    (java.util List Map UUID)
-    (querqy.parser WhiteSpaceQuerqyParser)
-    (querqy.rewrite RewriterFactory)
-    (querqy.rewrite.contrib ReplaceRewriter)
-    (querqy.rewrite.contrib.replace ReplaceRewriterParser TermsReplaceInstruction WildcardReplaceInstruction)
-    (querqy.trie SequenceLookup)))
+   (java.io InputStreamReader)
+   (java.net URL)
+   (java.util List Map UUID)
+   (querqy.parser WhiteSpaceQuerqyParser)
+   (querqy.rewrite RewriterFactory)
+   (querqy.rewrite.contrib ReplaceRewriter)
+   (querqy.rewrite.contrib.replace ReplaceRewriterParser TermsReplaceInstruction WildcardReplaceInstruction)
+   (querqy.trie SequenceLookup)))
 
 (defprotocol ReplaceRewriterBuilder
   (replace-rewriter* [this]))
@@ -58,7 +58,7 @@
                    parser      (WhiteSpaceQuerqyParser.)}}]
    (let [replace-parser (ReplaceRewriterParser. stream ignore-case delimiter parser)]
      (trie->ReplaceRewriterFactory
-       (.parseConfig replace-parser)))))
+      (.parseConfig replace-parser)))))
 
 (extend-protocol ReplaceRewriterBuilder
   URL
@@ -73,11 +73,11 @@
 
 (defn- flatten-map-keys [m]
   (reduce-kv
-    (fn [m k v]
-      (if (sequential? k)
-        (into m (map vector k (repeat v)))
-        (assoc m k v)))
-    {} m))
+   (fn [m k v]
+     (if (sequential? k)
+       (into m (map vector k (repeat v)))
+       (assoc m k v)))
+   {} m))
 
 (defn map->SequenceLookup [m]
   (let [trie (SequenceLookup.)]
@@ -92,17 +92,17 @@
           (if (str/ends-with? input wildcard)
             (throw (ex-info "suffix replace cannot end with wildcard" {:input input, :output output}))
             (.putSuffix
-              trie
-              (apply str (rest input))
-              (WildcardReplaceInstruction. output)))
+             trie
+             (apply str (rest input))
+             (WildcardReplaceInstruction. output)))
 
           (str/ends-with? input wildcard)
           (if (str/starts-with? input wildcard)
             (throw (ex-info "prefix replace cannot end with wildcard" {:input input, :output output}))
             (.putPrefix
-              trie
-              (apply str (butlast input))
-              (WildcardReplaceInstruction. output)))
+             trie
+             (apply str (butlast input))
+             (WildcardReplaceInstruction. output)))
 
           :else
           (.put trie [input] (TermsReplaceInstruction. output)))))
@@ -112,7 +112,7 @@
   Map
   (replace-rewriter* [m]
     (trie->ReplaceRewriterFactory
-      (map->SequenceLookup m))))
+     (map->SequenceLookup m))))
 
 ;; ----------------------------------------------------------------------
 ;; DSL

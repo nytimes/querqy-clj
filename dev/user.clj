@@ -3,7 +3,6 @@
             [com.nytimes.querqy :as q]
             [clojure.math :as math]))
 
-
 (defn pin
   "Pin the given IDs to the top of the result set in the order given. Should only
   be used once within a given match rule."
@@ -12,7 +11,6 @@
    (fn [idx id]
      (c/boost (- Float/MAX_VALUE idx) {:ids {:values [id]}}))
    ids))
-
 
 ;; Let's assume we have some special thanksgiving related content that editorial
 ;; wants highly promoted, the documents with IDs 12345 and 5678. Rather than
@@ -23,7 +21,6 @@
   (c/rules-rewriter
    (c/match "thanksgiving"
      (pin "12345" "5678"))))
-
 
 ;;  We can now emit a query which pins results to the top.
 
@@ -43,7 +40,6 @@
   :functions
   [{:filter {:ids {:values ["5678"]}}, :weight 1.0E37}
    {:filter {:ids {:values ["12345"]}}, :weight 1.0E38}]}}
-
 
 (def base
   {:function_score
