@@ -7,6 +7,6 @@
   (node-type [_] :term))
 
 (defn term-node
-  [fields text boost]
+  [& {:keys [fields text boost]}]
   (->TermNode fields text boost))
 

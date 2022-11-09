@@ -5,9 +5,9 @@
 (def occurs
   #{:should :must :must-not})
 
-(defrecord ClauseNode [occur node]
+(defrecord BooleanClauseNode [occur node]
   node/Node
-  (node-type [_] :clause)
+  (node-type [_] :boolean-clause)
 
   node/InnerNode
   (inner? [_] true)
@@ -25,25 +25,29 @@
   (replace-children [node clauses]
     (assoc node :clauses clauses)))
 
-(defn clause-node
+(defn boolean-clause-node
   [occur node]
-  (->ClauseNode occur node))
+  (->BooleanClauseNode occur node))
 
 (defn boolean-node
   ([] (->BooleanNode []))
   ([clauses]
    (->BooleanNode clauses)))
 
+(defn add-clause
+  [node clause]
+  (update node :clauses conj clause))
+
 (defn should
-  [node child]
-  (update node :clauses conj (->ClauseNode :should child)))
+  [child]
+  (->BooleanClauseNode :should child))
 
 (defn must
-  [node child]
-  (update node :clauses conj (->ClauseNode :must child)))
+  [child]
+  (->BooleanClauseNode :must child))
 
 (defn must-not
-  [node child]
-  (update node :clauses conj (->ClauseNode :must-not child)))
+  [child]
+  (->BooleanClauseNode :must-not child))
 
 
