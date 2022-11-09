@@ -8,10 +8,6 @@
 (declare trie)
 (declare get-trie)
 
-#_(defn- keyseq [^String string]
-  (map #(Character/toLowerCase ^Character %) string))
-
-
 (deftype Trie [key val children]
   Associative
   (containsKey [this ks]
@@ -29,7 +25,6 @@
                               (rest ks)
                               new-val))))
 
-  ;; ----------------------------------------------------------------------
 
   ILookup
   (valAt [this ks]
@@ -41,8 +36,6 @@
     (if-let [trie (get-trie this ks)]
       (.-val ^Trie trie)
       not-found))
-
-  ;; ----------------------------------------------------------------------
 
   IPersistentCollection
   (cons [this entry]
@@ -56,9 +49,11 @@
          (= (.-val this) (.-val ^Trie other))
          (= (.-children this) (.-children ^Trie other)))))
 
+
 (defmethod print-method Trie
   [^Trie trie ^Writer w]
   (print-method {:key (.-key trie), :value (.-val trie), :children (.-children trie)} w))
+
 
 (defn trie
   ([]
@@ -70,6 +65,7 @@
     (fn [accm [k v]] (assoc accm k v))
     (trie)
     (partition 2 kvs))))
+
 
 (defn get-trie
   [^Trie trie ks]
@@ -84,4 +80,3 @@
 
       :else
       (recur (rest ks) (get (.-children trie) (first ks))))))
-
