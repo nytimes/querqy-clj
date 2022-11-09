@@ -7,7 +7,13 @@
 
 (defrecord ClauseNode [occur node]
   node/Node
-  (node-type [_] :clause))
+  (node-type [_] :clause)
+
+  node/InnerNode
+  (inner? [_] true)
+  (children [_] (list node))
+  (replace-children [node node']
+    (assoc node :node node')))
 
 (defrecord BooleanNode [clauses]
   node/Node
@@ -18,6 +24,10 @@
   (children [_] clauses)
   (replace-children [node clauses]
     (assoc node :clauses clauses)))
+
+(defn clause-node
+  [occur node]
+  (->ClauseNode occur node))
 
 (defn boolean-node
   ([] (->BooleanNode []))

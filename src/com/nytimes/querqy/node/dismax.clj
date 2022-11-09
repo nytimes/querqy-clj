@@ -5,6 +5,7 @@
 (defrecord DismaxNode [terms]
   node/Node
   (node-type [_] :dismax)
+
   node/InnerNode
   (inner? [_] true)
   (children [_] terms)
@@ -13,4 +14,3 @@
 
 (defn dismax-node [terms]
   (->DismaxNode terms))
-
