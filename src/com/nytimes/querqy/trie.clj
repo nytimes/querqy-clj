@@ -85,24 +85,3 @@
       :else
       (recur (rest ks) (get (.-children trie) (first ks))))))
 
-
-(comment
-
-  (def t (trie))
-  (get-trie t [\A \B \C])
-
-  (def t2 (->Trie nil nil {\A (->Trie \A nil {\B (->Trie \B nil {\C (->Trie \C 1 {})})})}))
-  (get-trie t2 [\A \B \C])
-
-
-  (assoc (trie) '(\a) 1)
-  (trie nil 1)
-
-  (trie "abc" 1 "def" 2)
-  (hash-map 1 2 3)
-
-
-
-)
-
-(def t2 (->Trie nil nil {\A (->Trie \A nil {\B (->Trie \B nil {\C (->Trie \C 1 {})})})}))
