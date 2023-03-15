@@ -13,7 +13,7 @@
 ;; ----------------------------------------------------------------------
 ;; Nodes
 
-(defrecord Term [fields text boost]
+(defrecord Term [text]
   Node
   (node-type [_] ::term)
   (branch? [_] false)
@@ -22,8 +22,8 @@
   LeafNode)
 
 (defn term
-  [& {:keys [fields text boost]}]
-  (->Term fields text boost))
+  [text]
+  (->Term text))
 
 (defn term? [obj] (instance? Term obj))
 

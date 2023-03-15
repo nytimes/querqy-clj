@@ -1,17 +1,23 @@
 (ns user
   (:require
    [nytimes.quip.node :as node]
-   [nytimes.quip.zip :as qz]))
+   [nytimes.quip.zip :as z]
+   [clojure.string :as str]))
+
+(defn parse
+  [string]
+  (node/query
+   (node/subquery
+    :query (node/bool
+            (for [token (str/split string #"\s+")]
+              (node/clause :should (node/dismax [(node/term token)])))))))
 
 (comment
 
-  (def ast (node/dismax [(node/term :text "hello") (node/term :text "world")]))
-  (def z (qz/zipper ast))
+  (def root (z/zipper (parse "hello world")))
 
-  (-> z qz/next qz/node)
-  (-> z qz/next qz/next qz/next qz/end?)
-  (-> z qz/next (qz/edit assoc :text "bye") qz/root)
-
+  (-> root z/next z/next z/next z/node)
+  (-> root z/down z/down z/right z/node)
 
 
 
