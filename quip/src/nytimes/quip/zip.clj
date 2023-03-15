@@ -1,5 +1,5 @@
 (ns nytimes.quip.zip
-  "Zipper abstract for query tree"
+  "Zipper abstraction for query tree"
   (:refer-clojure :exclude [next remove replace find])
   (:require
    [clojure.zip :as cz]
@@ -9,7 +9,7 @@
   [root]
   (cz/zipper node/branch?
              (comp seq node/children)
-             node/children
+             node/update
              root))
 
 (defn next [loc] (cz/next loc))

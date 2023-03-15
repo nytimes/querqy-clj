@@ -1,116 +1,170 @@
-(ns nytimes.quip.node)
+(ns nytimes.quip.node
+  (:refer-clojure :rename {filter cfilter} :exclude [update]))
+
+(defn not-supported! []
+  (throw (ex-info "unsupported operation" {})))
+
+(defn assert-child-count!
+  [children size]
+  (assert (= size (count children))
+          (format "expected %d %s" size (if (= size 1) "child" "children"))))
+
+;; ----------------------------------------------------------------------
 
 (defprotocol Node
-  (node-type [this])
-  (branch? [this])
-  (leaf? [this]))
+  (tag [this]))
 
 (defprotocol BranchNode
-  (children [node] [node children]))
+  (branch? [this])
+  (children [this])
+  (update [this children]))
 
-(defprotocol LeafNode)
+(extend-type Object
+  Node
+  (tag [_] :unknown)
+  BranchNode
+  (branch? [_] false)
+  (children [_] (not-supported!))
+  (update [_] (not-supported!)))
+
+(defn node? [obj]
+  (and (some? obj) (not= :unknown (tag obj))))
+
+(defn leaf? [obj]
+  (and (node? obj) (not (branch? obj))))
 
 ;; ----------------------------------------------------------------------
 ;; Nodes
 
-(defrecord Term [text]
+(defrecord Term [text fields boost]
   Node
-  (node-type [_] ::term)
-  (branch? [_] false)
-  (leaf? [_] true)
-
-  LeafNode)
+  (tag [_] :term))
 
 (defn term
-  [text]
-  (->Term text))
+  [text & {:keys [fields boost]}]
+  (->Term text (or fields (list)) (or boost 1.0)))
 
-(defn term? [obj] (instance? Term obj))
+(defn term? [obj] (= :term (tag obj)))
 
 ;; Phrase
 
-(defrecord Phrase [terms]
+(defrecord Phrase [text boost]
   Node
-  (node-type [_] ::phrase)
-  (branch? [_] true)
-  (leaf? [_] false)
+  (tag [_] :phrase))
 
-  BranchNode
-  (children [_] terms)
-  (children [node terms]
-    (assoc node :terms terms)))
-
-(defn phrase [terms]
-  (->Phrase terms))
+(defn phrase [text & {:keys [boost]}]
+  (->Phrase text (or boost 1.0)))
 
 ;; Dismax
 
-(defrecord Dismax [terms]
+(defrecord Dismax [children]
   Node
-  (node-type [_] ::dismax)
-  (branch? [_] true)
-  (leaf? [_] false)
+  (tag [_] :dismax)
 
   BranchNode
-  (children [_] terms)
-  (children [node terms]
-    (assoc node :terms terms)))
+  (branch? [_] true)
+  (children [_] children)
+  (update [this children]
+    (assoc this :children children)))
 
-(defn dismax [terms]
-  (->Dismax terms))
+(defn dismax [children]
+  (if (sequential? children)
+    (->Dismax children)
+    (->Dismax (list children))))
 
 
 ;; Raw
 
 (defrecord Raw [query]
   Node
-  (node-type [_] ::raw)
-  (branch? [_] false)
-  (leaf? [_] true)
-  LeafNode)
+  (tag [_] :raw))
 
 (defn raw [query]
   (->Raw query))
 
-;; Boost
-
-(defrecord Boost [boost query]
-  Node
-  (node-type [_] ::boost)
-  (branch? [_] true)
-  (leaf? [_] false)
-
-  BranchNode
-  (children [_] (list query))
-  (children [node query]
-    (assoc node :query query)))
-
-(defn boost
-  [boost query]
-  (->Boost boost query))
-
-
 ;; Boolean
 
-(def occurs
-  #{:should :must :must-not})
-
-(defrecord Clause [occur node]
+(defrecord Clause [type children]
   Node
-  (node-type [_] ::clause)
+  (tag [_] (keyword "boolean" (name type)))
+
+  BranchNode
+  (branch? [_] true)
+  (children [_] children)
+  (update [this children]
+    (assert-child-count! children 1)
+    (assoc this :children children)))
+
+(defn should
+  [children]
+  (->Clause :should (if (sequential? children) children (list children))))
+
+(defn must
+  [children]
+  (->Clause :must (if (sequential? children) children (list children))))
+
+(defn must-not
+  [children]
+  (->Clause :must-not (if (sequential? children) children (list children))))
+
+(defn filter
+  [children]
+  (->Clause :filter (if (sequential? children) children (list children))))
+
+#_(defrecord Should [node]
+  Node
+  (node-type [_] ::should)
   (branch? [_] true)
   (leaf? [_] false)
 
   BranchNode
   (children [_] (list node))
-  (children [node node']
-    (assoc node :node node')))
+  (update [this node]
+    (assoc this :node node)
+    #_(prn :>> node)
+    #_(assoc this :node (if (list? node)
+                        (first node)
+                        node))))
 
-(defn clause
-  [occur node]
-  (->Clause occur node))
+#_(defn should [node] (->Should node))
 
-(defrecord Bool [clauses]
+#_(defrecord Must [node]
+  Node
+  (node-type [_] ::must)
+  (branch? [_] true)
+  (leaf? [_] false)
+
+  BranchNode
+  (children [_] (list node))
+  (update [node node'] (assoc node :node node')))
+
+#_(defn must [node] (->Must node))
+
+#_(defrecord MustNot [node]
+  Node
+  (node-type [_] ::must-not)
+  (branch? [_] true)
+  (leaf? [_] false)
+
+  BranchNode
+  (children [_] (list node))
+  (update [node node'] (assoc node :node node')))
+
+#_(defn must-not [node] (->MustNot node))
+
+#_(defrecord Filter [node]
+  Node
+  (node-type [_] ::filter)
+  (branch? [_] true)
+  (leaf? [_] false)
+  BranchNode
+  (children [_] (list node))
+  (update [this node] (assoc this :node node)))
+
+#_(defn filter [node]
+  (->Filter node))
+
+#_(defrecord Bool [clauses]
   Node
   (node-type [_] ::bool)
   (branch? [_] true)
@@ -118,45 +172,52 @@
 
   BranchNode
   (children [_] clauses)
-  (children [node clauses]
+  (update [node clauses]
     (assoc node :clauses clauses)))
 
-(defn bool
+#_(defn bool
   ([] (->Bool []))
   ([clauses]
    (->Bool clauses)))
 
+#_(defn bool? [node] (instance? Bool node))
+
 ;; Query
 
-(def subquery-types
-  #{:query :filter :boost})
-
-(defrecord Subquery [type query]
+#_(defrecord Boost [node amount]
   Node
-  (node-type [_] ::subquery)
+  (node-type [_] ::boost)
   (branch? [_] true)
   (leaf? [_] false)
-
   BranchNode
-  (children [_] (list query))
-  (children [node query]
-    (assoc node :query query)))
+  (children [_] (list node))
+  (update [this node] (assoc this :node node)))
 
-(defn subquery
-  [type query]
-  (->Subquery type query))
+#_(defn boost
+  [node amount]
+  (->Boost node amount))
 
-(defrecord Query [query filters boosts]
+#_(defn boost? [obj] (instance? Boost obj))
+
+#_(defrecord Query [bool boosts]
   Node
   (node-type [_] ::query)
   (branch? [_] true)
   (leaf? [_] false)
 
   BranchNode
-  (children [_] (concat (list query) filters boosts))
-  (children [node children]
-    (assoc node :children children)))
+  (children [_] (cons bool boosts))
+  (update [this nodes]
+    (assoc this
+           :bool (first (cfilter bool? nodes))
+           :boosts (cfilter boost? nodes))))
 
 (defn query
-  [& {:keys [query filters boosts] :or {filters [], boosts []}}]
-  (->Query query filters boosts))
+  [nodes]
+  (->Query (first (cfilter bool? nodes))
+           (cfilter boost? nodes)))
+
+
+
+
+;; Helpers
