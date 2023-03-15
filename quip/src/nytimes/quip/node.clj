@@ -25,6 +25,8 @@
   [& {:keys [fields text boost]}]
   (->Term fields text boost))
 
+(defn term? [obj] (instance? Term obj))
+
 ;; Phrase
 
 (defrecord Phrase [terms]

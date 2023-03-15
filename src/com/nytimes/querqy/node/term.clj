@@ -9,4 +9,3 @@
 (defn term-node
   [& {:keys [fields text boost]}]
   (->TermNode fields text boost))
-
