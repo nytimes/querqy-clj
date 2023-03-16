@@ -7,10 +7,12 @@
 
 (defn zipper
   [root]
-  (cz/zipper node/branch?
-             (comp seq node/children)
-             node/update
-             root))
+  (cz/zipper
+   node/branch?
+   (comp seq node/children)
+   node/update
+   root))
+
 
 (defn next [loc] (cz/next loc))
 (defn down [loc] (cz/down loc))
@@ -38,6 +40,40 @@
 (defn root [loc] (cz/root loc))
 
 
+#_(defn remove
+  "Removes the node at loc, returning the loc that would have preceded
+  it in a depth-first walk."
+  {:added "1.0"}
+  [loc]
+    (let [[node {l :l, ppath :ppath, pnodes :pnodes, rs :r, :as path}] loc]
+      (if (nil? path)
+        (throw (new Exception "Remove at top"))
+        (if (pos? (count l))
+          (loop [loc (with-meta [(peek l) (assoc path :l (pop l) :changed? true)] (meta loc))]
+            (if-let [child (and (branch? loc) (down loc))]
+              (recur (rightmost child))
+              loc))
+          (with-meta [(make-node loc (peek pnodes) rs)
+                      (and ppath (assoc ppath :changed? true))]
+            (meta loc))))))
+
+(defn delete
+  "Like remove, but will continually remove locs that have no children."
+  [loc])
+
+;;
+
+(defn tag
+  [zloc]
+  (some-> zloc cz/node node/tag))
+
+(defn value
+  [zloc]
+  (some-> zloc cz/node))
+
+
+;;
+
 (defn find
   ([loc p?]
    (find loc next p?))
@@ -49,9 +85,31 @@
         (drop-while (complement p?))
         (first))))
 
+;; TODO
 
 (defn find-node
   ([loc p?]
    (find-node loc next p?))
   ([loc f p?]
    (find loc f (comp p? node))))
+
+(defn find-next
+  ([zloc p?]
+   (find-next zloc next p?))
+  ([zloc f p?]
+   (some-> zloc f (find f p?))))
+
+(defn edit-all
+  [zloc p? f]
+  (loop [zloc (if (p? zloc) (f zloc) zloc)]
+    (if-let [zloc (find-next zloc next p?)]
+      (recur (f zloc))
+      zloc)))
+
+(defn find-all [zloc p?]
+  (loop [matches [], zloc zloc]
+    (prn (find-next zloc p?))
+    (if-let [zloc (find-next zloc p?)]
+      (recur (conj matches zloc)
+             (next zloc))
+      matches)))

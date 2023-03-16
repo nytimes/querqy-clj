@@ -4,63 +4,74 @@
    [nytimes.quip.node :as node]
    [nytimes.quip.zip :as z]
    [clojure.string :as str]
-   [clojure.pprint :refer [pprint]]))
+   [clojure.test :refer [deftest is are testing]]
+   [clojure.zip :as cz]))
 
 (defn parse
   [string]
   (node/query
-   [(node/bool
-     (for [token (str/split string #"\s+")]
-       (node/should (node/dismax [(node/term token)]))))]))
+   (node/bool
+    (for [token (str/split string #"\s+")]
+      (node/should (node/dismax (node/term token)))))))
 
-(defn synonym
-  [zloc term syn]
-  (-> (z/find-node zloc (partial = term))
-      (z/up)
-      (z/edit update :terms conj syn)
-      (z/root)))
+(testing "parsed query structure"
+  (is (= (node/query
+          (node/bool
+           (list (node/should (node/dismax (node/term "hello")))
+                 (node/should (node/dismax (node/term "world"))))))
+         (parse "hello world"))))
 
-(defn boost
-  [zloc term amount]
-  (-> (z/find-node zloc (partial = term))
-      (z/edit node/boost-term amount)
-      (z/root)))
 
 (def root (z/zipper (parse "hello world")))
 
-(comment
-  (-> root z/next z/next z/node)
-  (-> root z/down z/down z/right z/node)
-
-    (-> root
-      (z/find-node node/term?)
+(defn synonym
+  [zloc term syn]
+  (-> (z/find-node zloc (partial node/term= term))
       (z/up)
-      (z/edit update :terms conj (node/term "hi"))
-      (z/root)
-      (cprint))
+      (z/edit update :children conj syn)))
 
-  (-> root
-      (synonym (node/term "hello") (node/term "hi"))
-      cprint)
+(defn prune
+  [zloc]
+  (->> zloc
+      (iterate z/prev)
+      (take-while (fn [node] (println "-----") (cprint node) node))
 
-  (boost (node/term "hello") 100)
-  (-> root
-           (boost (node/term "hello") 100)
-      :bool
-      :clauses
-      first)
-  (boost root (node/term "hello") 1.0)
+      ))
 
-  (meta
-   (vary-meta {} assoc :x 1))
+(defn delete
+  [zloc term]
+  (z/edit-all zloc (partial node/term= term) z/next)
+  (-> (z/find-node zloc (partial node/term= term))
+      (z/remove)
+      (z/up)
+      (z/edit prn)))
+
+(testing "synonyms"
+  (is (= (node/query
+          (node/bool
+           (list (node/should (node/dismax (list (node/term "hi") (node/term "hello"))))
+                 (node/should (node/dismax (node/term "world"))))))
+         (-> root
+             (synonym (node/term "hello") (node/term "hi"))
+             (z/root)))))
+
+(testing "delete"
+  (is (= (node/query
+          (node/bool
+           (list (node/should (node/dismax (node/term "a")))
+                 (node/should (node/dismax (node/term "b")))
+                 (node/should (node/dismax (node/term "d"))))))
+         (z/root (delete (z/zipper (parse "a b c d"))
+                         (node/term "c"))))))
 
 
 
 
 
+(comment
+  (cprint (z/root (synonym root (node/term "hello") (node/term "hi"))))
+  (cprint (-> root
+              (synonym (node/term "hello") (node/term "hi"))
+              (delete (node/term "world"))))
 
-
-
-
-
-)
+  )

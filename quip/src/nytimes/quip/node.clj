@@ -46,6 +46,9 @@
 
 (defn term? [obj] (= :term (tag obj)))
 
+(defn term= [x y]
+  (and (term? x) (term? y) (= (:text x) (:text y))))
+
 ;; Phrase
 
 (defrecord Phrase [text boost]
@@ -72,7 +75,6 @@
     (->Dismax children)
     (->Dismax (list children))))
 
-
 ;; Raw
 
 (defrecord Raw [query]
@@ -86,7 +88,7 @@
 
 (defrecord Clause [type children]
   Node
-  (tag [_] (keyword "boolean" (name type)))
+  (tag [_] type)
 
   BranchNode
   (branch? [_] true)
@@ -97,127 +99,54 @@
 
 (defn should
   [children]
-  (->Clause :should (if (sequential? children) children (list children))))
+  (->Clause :bool/should (if (sequential? children) children (list children))))
 
 (defn must
   [children]
-  (->Clause :must (if (sequential? children) children (list children))))
+  (->Clause :bool/must (if (sequential? children) children (list children))))
 
 (defn must-not
   [children]
-  (->Clause :must-not (if (sequential? children) children (list children))))
+  (->Clause :bool/must-not (if (sequential? children) children (list children))))
 
 (defn filter
   [children]
-  (->Clause :filter (if (sequential? children) children (list children))))
+  (->Clause :bool/filter (if (sequential? children) children (list children))))
 
-#_(defrecord Should [node]
+(defrecord Bool [children]
   Node
-  (node-type [_] ::should)
-  (branch? [_] true)
-  (leaf? [_] false)
+  (tag [_] :bool)
 
   BranchNode
-  (children [_] (list node))
-  (update [this node]
-    (assoc this :node node)
-    #_(prn :>> node)
-    #_(assoc this :node (if (list? node)
-                        (first node)
-                        node))))
-
-#_(defn should [node] (->Should node))
-
-#_(defrecord Must [node]
-  Node
-  (node-type [_] ::must)
   (branch? [_] true)
-  (leaf? [_] false)
+  (children [_] children)
+  (update [this children]
+    (assoc this :children children)))
 
-  BranchNode
-  (children [_] (list node))
-  (update [node node'] (assoc node :node node')))
+(defn bool
+  [children]
+  (->Bool (if (sequential? children) children (list children))))
 
-#_(defn must [node] (->Must node))
-
-#_(defrecord MustNot [node]
-  Node
-  (node-type [_] ::must-not)
-  (branch? [_] true)
-  (leaf? [_] false)
-
-  BranchNode
-  (children [_] (list node))
-  (update [node node'] (assoc node :node node')))
-
-#_(defn must-not [node] (->MustNot node))
-
-#_(defrecord Filter [node]
-  Node
-  (node-type [_] ::filter)
-  (branch? [_] true)
-  (leaf? [_] false)
-  BranchNode
-  (children [_] (list node))
-  (update [this node] (assoc this :node node)))
-
-#_(defn filter [node]
-  (->Filter node))
-
-#_(defrecord Bool [clauses]
-  Node
-  (node-type [_] ::bool)
-  (branch? [_] true)
-  (leaf? [_] false)
-
-  BranchNode
-  (children [_] clauses)
-  (update [node clauses]
-    (assoc node :clauses clauses)))
-
-#_(defn bool
-  ([] (->Bool []))
-  ([clauses]
-   (->Bool clauses)))
-
-#_(defn bool? [node] (instance? Bool node))
+(defn bool? [node] (= :bool (tag node)))
 
 ;; Query
 
-#_(defrecord Boost [node amount]
+;; TODO: Think a bit about this top-level structure
+
+(defrecord Query [children]
   Node
-  (node-type [_] ::boost)
-  (branch? [_] true)
-  (leaf? [_] false)
-  BranchNode
-  (children [_] (list node))
-  (update [this node] (assoc this :node node)))
-
-#_(defn boost
-  [node amount]
-  (->Boost node amount))
-
-#_(defn boost? [obj] (instance? Boost obj))
-
-#_(defrecord Query [bool boosts]
-  Node
-  (node-type [_] ::query)
-  (branch? [_] true)
-  (leaf? [_] false)
+  (tag [_] :query)
 
   BranchNode
-  (children [_] (cons bool boosts))
-  (update [this nodes]
-    (assoc this
-           :bool (first (cfilter bool? nodes))
-           :boosts (cfilter boost? nodes))))
+  (branch? [_] true)
+  (children [_] children)
+  (update [this children]
+    (assoc this :children children)))
+
+(defn boost
+  [children]
+  (->Clause :boost (if (sequential? children) children (list children))))
 
 (defn query
-  [nodes]
-  (->Query (first (cfilter bool? nodes))
-           (cfilter boost? nodes)))
-
-
-
-
-;; Helpers
+  [children]
+  (->Query (if (sequential? children) children (list children))))
