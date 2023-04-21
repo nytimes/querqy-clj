@@ -1,0 +1,3 @@
+(match "guac" (replace "guacamole"))
+
+(match "A1" (synonym "B1"))
