@@ -1,1 +1,4 @@
-{:extra-indents {}}
+{:sort-ns-references?             true
+ :remove-consecutive-blank-lines? false
+ :extra-indents
+ {}}

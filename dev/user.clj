@@ -1,7 +1,7 @@
 (ns user
-  (:require [com.nytimes.querqy.commonrules :as c]
-            [com.nytimes.querqy :as q]
-            [clojure.math :as math]))
+  (:require
+   [com.nytimes.querqy :as q]
+   [com.nytimes.querqy.commonrules :as c]))
 
 (defn pin
   "Pin the given IDs to the top of the result set in the order given. Should only
