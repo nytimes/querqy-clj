@@ -2,22 +2,24 @@
   "CommonRules based rewriter"
   (:refer-clojure :exclude [filter])
   (:require
-   [clojure.java.io :as io]
-   [clojure.string :as str]
-   [com.nytimes.querqy.model :as model]
-   [com.nytimes.querqy.parser :as parser])
+    [clojure.java.io :as io]
+    [clojure.string :as str]
+    [com.nytimes.querqy.model :as model]
+    [com.nytimes.querqy.parser :as parser])
   (:import
-   (java.io Reader)
-   (java.net URL)
-   (java.util List UUID)
-   (querqy.model Input Input$BooleanInput Input$SimpleInput)
-   (querqy.parser QuerqyParser)
-   (querqy.rewrite RewriterFactory)
-   (querqy.rewrite.commonrules CommonRulesRewriter LineParser QuerqyParserFactory SimpleCommonRulesParser WhiteSpaceQuerqyParserFactory)
-   (querqy.rewrite.commonrules.model BoostInstruction BoostInstruction$BoostDirection DeleteInstruction FilterInstruction Instructions SynonymInstruction TrieMapRulesCollectionBuilder)
-   (querqy.rewrite.commonrules.select SelectionStrategyFactory)
-   (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
-   (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type BooleanInputLiteral)))
+    (java.io Reader)
+    (java.net URL)
+    (java.util List UUID)
+    (querqy.model Input Input$BooleanInput Input$SimpleInput)
+    (querqy.parser QuerqyParser)
+    (querqy.rewrite RewriterFactory)
+    (querqy.rewrite.commonrules CommonRulesRewriter LineParser QuerqyParserFactory SimpleCommonRulesParser WhiteSpaceQuerqyParserFactory)
+    (querqy.rewrite.commonrules.model BoostInstruction BoostInstruction$BoostDirection DeleteInstruction FilterInstruction Instructions SynonymInstruction TrieMapRulesCollectionBuilder)
+    (querqy.rewrite.commonrules.select SelectionStrategyFactory)
+    (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
+    (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type BooleanInputLiteral)))
+
+(set! *warn-on-reflection* true)
 
 (defprotocol CommonRulesRewriterBuilder
   (common-rules-rewriter* [this]))
@@ -27,12 +29,6 @@
   (common-rules-rewriter* [_]
     (throw (IllegalArgumentException. "Must provide rules to rules-rewriter"))))
 
-(defn- flatten-rules
-  [fns]
-  (reduce (fn [accm afn] (if (coll? afn) (into accm afn) (conj accm afn)))
-          []
-          fns))
-
 (defn rules-rewriter
   "Create a CommonRulesRewriter.
 
@@ -41,15 +37,15 @@
   [& args]
   (if (and (= 1 (count args)) (instance? URL (first args)))
     (common-rules-rewriter* (first args))
-    (common-rules-rewriter* (flatten-rules args))))
+    (common-rules-rewriter* args)))
 
 (defn rewriter-factory
   [rules]
   (proxy [RewriterFactory] [(str (UUID/randomUUID))]
     (createRewriter [_ _]
       (CommonRulesRewriter.
-       rules
-       SelectionStrategyFactory/DEFAULT_SELECTION_STRATEGY))
+        rules
+        SelectionStrategyFactory/DEFAULT_SELECTION_STRATEGY))
     (getCacheableGenerableTerms [] #{})))
 
 ;; ----------------------------------------------------------------------
@@ -63,10 +59,10 @@
                            ignore-case   true
                            parser        (WhiteSpaceQuerqyParserFactory.)}}]
    (let [rules-parser (SimpleCommonRulesParser.
-                       ^Reader stream
-                       ^boolean boolean-input
-                       ^QuerqyParserFactory parser
-                       ^boolean ignore-case)]
+                        ^Reader stream
+                        ^boolean boolean-input
+                        ^QuerqyParserFactory parser
+                        ^boolean ignore-case)]
      (.parse rules-parser))))
 
 (extend-protocol CommonRulesRewriterBuilder
@@ -77,36 +73,51 @@
 ;; ----------------------------------------------------------------------
 ;; DSL
 
-(extend-protocol CommonRulesRewriterBuilder
-  List
-  (common-rules-rewriter* [rules]
-    (let [rules-builder (TrieMapRulesCollectionBuilder. true)]
-      (doseq [rule-fn rules]
-        (rule-fn rules-builder))
-      (rewriter-factory (.build rules-builder)))))
-
 (def ^:dynamic ^QuerqyParser *query-parser* parser/whitespace-parser)
 
-(declare match*)
+(defrecord Rule [input instructions])
+
+(defn match*
+  "Create a "
+  [head & tail]
+  (->Rule head (vec tail)))
 
 (defmacro match
-  "Create a match rule."
-  {:style/indent 1}
-  ;; TODO LEFT/ RIGHT boundaries
+  "Create a rewriter rule from matching text input or boolean input followed by
+  any number of query transformations.
+
+  ```clojure
+  ;; Inject bar as a synonym to foo in any query.
+  (match \"foo\"
+    (synonym \"bar\"))
+  ```"
   [head & tail]
-  `(match* '~head (vec (flatten (vector ~@tail)))))
+  `(match* '~head ~@tail))
 
-(defn- parse-string [string] (mapv #(LineParser/parseTerm %) (str/split string #"\s+")))
+(defn- parse-string
+  [string]
+  (mapv #(LineParser/parseTerm %) (str/split string #"\s+")))
 
-(defn- parse-query [query]
-  (cond (string? query) (.parse *query-parser* query)
-        (map? query) (model/rawq {:query query})))
+(defn- parse-query
+  [query]
+  (cond
+    (string? query)
+    (.parse *query-parser* query)
 
-(defn delete? [obj] (instance? DeleteInstruction obj))
+    (map? query)
+    (model/rawq {:query query})))
 
-(defn delete [string] (DeleteInstruction. (parse-string string)))
+(defn delete?
+  [obj]
+  (instance? DeleteInstruction obj))
 
-(defn synonym? [obj] (instance? SynonymInstruction obj))
+(defn delete
+  [string]
+  (DeleteInstruction. (parse-string string)))
+
+(defn synonym?
+  [obj]
+  (instance? SynonymInstruction obj))
 
 (defn synonym
   "Create a synonym instruction."
@@ -154,41 +165,43 @@
       not (wrap (cons NOT (parse-boolean-input terms)))
       (map parse-boolean-input input))))
 
-;;
+(defn parse-simple-input
+  ^Input$SimpleInput
+  [string]
+  (Input/parseSimpleInput string))
 
-(def rule-count (atom 0))
+(extend-protocol CommonRulesRewriterBuilder
+  List
+  (common-rules-rewriter* [rules]
+    (let [rules                (flatten rules)
+          counter              (atom 0)
+          rules-builder        (TrieMapRulesCollectionBuilder. true)
+          boolean-input-parser (BooleanInputParser.)]
+      (doseq [{:keys [input instructions]} rules]
+        (let [ord          (swap! counter inc)
+              id           (str input "#" ord)
+              instructions (Instructions. ord id instructions)]
+          (cond
+            (string? input)
+            (.addRule rules-builder (parse-simple-input input) instructions)
 
-(defn ^:no-doc match*
-  ;; implements match for use by match macro
-  [input instructions]
-  (let [ord      (swap! rule-count inc)
-        compiled (Instructions. ord ord instructions)]
-    (fn [^TrieMapRulesCollectionBuilder rules-builder]
-      (cond
-        ;; string rules
-        (string? input)
-        (let [simple-input (Input/parseSimpleInput input)]
-          (.addRule rules-builder
-                    ^Input$SimpleInput simple-input
-                    ^Instructions compiled))
+            (list? input)
+            (do
+              (when (some delete? instructions)
+                (throw (IllegalArgumentException. "Cannot use a delete instruction with boolean input")))
 
-        ;; boolean rules
-        (list? input)
-        (do
-          (when (some delete? instructions)
-            (throw (IllegalArgumentException. "Cannot use a delete instruction with boolean input")))
-          (when (some synonym? instructions)
-            (throw (IllegalArgumentException. "Cannot use a synonym instruction with boolean input")))
-          (let [boolean-input-parser (BooleanInputParser.)
-                bool-input           (Input$BooleanInput. (parse-boolean-input input)
-                                                          boolean-input-parser
-                                                          (pr-str input))]
+              (when (some synonym? instructions)
+                (throw (IllegalArgumentException. "Cannot use a synonym instruction with boolean input")))
 
-            (.applyInstructions bool-input compiled rules-builder)
-            (doseq [^BooleanInputLiteral literal (.values (.getLiteralRegister boolean-input-parser))]
-              (let [input (LineParser/parseInput (str/join \space (.getTerms literal)))]
-                (.addRule rules-builder
-                          ^Input$SimpleInput input
-                          ^BooleanInputLiteral literal)))))
+              (let [bool-input (Input$BooleanInput. (parse-boolean-input input) boolean-input-parser (pr-str input))]
+                ;;  inputPattern.applyInstructions(instructions, builder);
+                (.applyInstructions bool-input instructions rules-builder))))))
 
-        :else (throw (IllegalArgumentException. "Can only parse a string or list as input"))))))
+      ;; Add boolean literals at the end
+      (doseq [^BooleanInputLiteral literal (.values (.getLiteralRegister boolean-input-parser))]
+        (let [string (str/join \space (.getTerms literal))
+              input  (parse-simple-input string)]
+          (.addRule rules-builder input literal)))
+
+      ;;
+      (rewriter-factory (.build rules-builder)))))

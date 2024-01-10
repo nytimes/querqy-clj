@@ -33,3 +33,9 @@ A8 =>
 
 (A11 AND (NOT B11)) =>
     UP(2): C11
+
+(best AND netflix AND show) =>
+    UP(2): netflix
+
+(best AND amazon AND show) =>
+    UP(2): amazon
