@@ -21,7 +21,6 @@
 
   :dependencies
   [[org.clojure/clojure "1.11.1"]
-   [org.clojure/tools.logging "1.2.4"]
    [org.querqy/querqy-core "3.12.0"]]
 
   :repl-options {:init-ns com.nytimes.querqy}
@@ -34,14 +33,16 @@
    :integration :integration}
 
   :profiles
-  {:dev {:source-paths ["dev"]
-         :jvm-opts     ["-Dorg.slf4j.simpleLogger.defaultLogLevel=debug"]
-         :dependencies [[metosin/testit "0.4.1"]
-                        [lambdaisland/kaocha "1.66.1034"]
-                        [org.clojure/test.check "1.1.1"]
-                        [criterium "0.4.6"]
-                        [org.slf4j/slf4j-api "1.7.36"]
-                        [org.slf4j/slf4j-simple "1.7.36"]]}}
+  {:dev
+   {:source-paths ["dev"]
+    :jvm-opts     ["-Dorg.slf4j.simpleLogger.defaultLogLevel=debug"]
+    :dependencies
+    [[metosin/testit "0.4.1"]
+     [lambdaisland/kaocha "1.66.1034"]
+     [org.clojure/test.check "1.1.1"]
+     [criterium "0.4.6"]
+     [org.slf4j/slf4j-api "1.7.36"]
+     [org.slf4j/slf4j-simple "1.7.36"]]}}
 
   :aliases {"kaocha" ["run" "-m" "kaocha.runner"]}
 
