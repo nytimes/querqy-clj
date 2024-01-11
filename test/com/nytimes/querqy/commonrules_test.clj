@@ -1,15 +1,15 @@
 (ns com.nytimes.querqy.commonrules-test
   (:refer-clojure :exclude [filter])
   (:require
-    [clojure.datafy :refer [datafy]]
-    [clojure.java.io :as io]
-    [clojure.test :refer [deftest is]]
-    [com.nytimes.querqy :as querqy]
-    [com.nytimes.querqy.commonrules :as r :refer [boost delete filter match match* synonym]]
-    [testit.core :refer [=> =in=> facts]])
+   [clojure.datafy :refer [datafy]]
+   [clojure.java.io :as io]
+   [clojure.test :refer [deftest is]]
+   [com.nytimes.querqy :as querqy]
+   [com.nytimes.querqy.commonrules :as r :refer [boost delete filter match match* synonym]]
+   [testit.core :refer [=> =in=> facts]])
   (:import
-    (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
-    (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type)))
+   (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
+   (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type)))
 
 (deftest match-macro-inputs
   (facts "valid inputs to match macro"
@@ -52,30 +52,30 @@
 
 (def resource-rewriter
   (r/rules-rewriter
-    (io/resource "com/nytimes/querqy/common-rules.txt")))
+   (io/resource "com/nytimes/querqy/common-rules.txt")))
 
 (def dsl-rewriter
   (r/rules-rewriter
     ;; basics
-    (match "A1" (synonym "B1"))
-    (match "A2 B2" (synonym "C2"))
-    (match "A3" (synonym "B3") (synonym "C3"))
-    (match "A4 B4" (synonym "C4") (synonym "D4"))
-    (match "A5" (boost 2 "B5"))
-    (match "A6" (filter "B6"))
-    (match "A7 B7" (delete "B7"))
-    (match "A8" (synonym "B8") (boost 2 "C8"))
+   (match "A1" (synonym "B1"))
+   (match "A2 B2" (synonym "C2"))
+   (match "A3" (synonym "B3") (synonym "C3"))
+   (match "A4 B4" (synonym "C4") (synonym "D4"))
+   (match "A5" (boost 2 "B5"))
+   (match "A6" (filter "B6"))
+   (match "A7 B7" (delete "B7"))
+   (match "A8" (synonym "B8") (boost 2 "C8"))
     ;; boolean rules
-    (match (or "A9" "B9") (boost 2 "C9"))
-    (match (and "A10" "B10") (boost 2 "C10"))
-    (match (and "A11" (not "B11")) (boost 2 "C11"))
+   (match (or "A9" "B9") (boost 2 "C9"))
+   (match (and "A10" "B10") (boost 2 "C10"))
+   (match (and "A11" (not "B11")) (boost 2 "C11"))
 
     ;; multi anchor rules
-    (match (and "best" "netflix" "show")
-      (boost 2 "netflix"))
+   (match (and "best" "netflix" "show")
+     (boost 2 "netflix"))
 
-    (match (and "best" "amazon" "show")
-      (boost 2 "amazon"))))
+   (match (and "best" "amazon" "show")
+     (boost 2 "amazon"))))
 
 (defn rewrite
   "util to do a rewrite and datafy the result for easier comparison"
@@ -110,8 +110,8 @@
 
 (def rules-with-custom-functions
   (r/rules-rewriter
-    (synonyms "chickpea" "garbanzo bean")
-    (synonyms "chickpeas" "garbanzo beans")))
+   (synonyms "chickpea" "garbanzo bean")
+   (synonyms "chickpeas" "garbanzo beans")))
 
 (deftest custom-functions-test
   (facts "helper functions can return multiple match rules"
