@@ -10,11 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+
     - name: deps
       run: lein deps
+
     - name: lint
       run: lein clj-kondo --lint src test
+
     - name: cljfmt
       run: lein cljfmt check
+
     - name: test
       run: lein test
+
+    - name: release
+      env:
+        CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
+        CLOJARS_PASSWORD: ${{ secrets.CLOJARS_PASSWORD }}
+      run: lein deploy releases
