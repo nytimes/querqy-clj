@@ -18,3 +18,5 @@ jobs:
       run: lein cljfmt check
     - name: test
       run: lein test
+    - name: snapshot
+      run: lein deploy snapshots
