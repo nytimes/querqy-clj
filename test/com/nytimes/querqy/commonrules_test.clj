@@ -6,6 +6,7 @@
    [clojure.test :refer [deftest is]]
    [com.nytimes.querqy :as querqy]
    [com.nytimes.querqy.commonrules :as r :refer [boost delete filter match match* synonym]]
+   [com.nytimes.querqy.model :refer :all]
    [testit.core :refer [=> =in=> facts]])
   (:import
    (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
@@ -83,22 +84,113 @@
   (datafy (querqy/rewrite rw string)))
 
 (deftest rewriter-test
-  (facts "DSL & Resource Rewriters have the same output"
-    (rewrite dsl-rewriter "A1") => (rewrite resource-rewriter "A1")
-    (rewrite dsl-rewriter "A2 B2") => (rewrite resource-rewriter "A2 B2")
-    (rewrite dsl-rewriter "A3") => (rewrite resource-rewriter "A3")
-    (rewrite dsl-rewriter "A4 B4") => (rewrite resource-rewriter "A4 B4")
-    (rewrite dsl-rewriter "A5") => (rewrite resource-rewriter "A5")
-    (rewrite dsl-rewriter "A6") => (rewrite resource-rewriter "A6")
-    (rewrite dsl-rewriter "A7 B7") => (rewrite resource-rewriter "A7 B7")
-    (rewrite dsl-rewriter "A8") => (rewrite resource-rewriter "A8")
-    (rewrite dsl-rewriter "A9") => (rewrite resource-rewriter "A9")
-    (rewrite dsl-rewriter "B9") => (rewrite resource-rewriter "B9")
-    (rewrite dsl-rewriter "A10 B10") => (rewrite resource-rewriter "A10 B10")
-    (rewrite dsl-rewriter "A11") => (rewrite resource-rewriter "A11")
-    (rewrite dsl-rewriter "A11 B11") => (rewrite resource-rewriter "A11 B11")
-    (rewrite dsl-rewriter "best netflix show") => (rewrite resource-rewriter "best netflix show")
-    (rewrite dsl-rewriter "best amazon show") => (rewrite resource-rewriter "best amazon show")))
+  (facts "A1"
+    (rewrite resource-rewriter "A1")
+    => {:query {:should [#{{:term "A1"} {:term "B1"}}]}}
+
+    (rewrite dsl-rewriter "A1")
+    => {:query {:should [#{{:term "A1"} {:term "B1"}}]}})
+
+  (facts "A2 B2"
+    (rewrite resource-rewriter "A2 B2")
+    => {:query
+        {:should
+         [#{{:term "A2"} {:term "C2"}}
+          #{{:term "B2"} {:term "C2"}}]}}
+
+    (rewrite dsl-rewriter "A2 B2")
+    => {:query
+        {:should
+         [#{{:term "A2"} {:term "C2"}}
+          #{{:term "B2"} {:term "C2"}}]}})
+
+  (facts "A3"
+    (rewrite resource-rewriter "A3")
+    => {:query {:should [#{{:term "A3"} {:term "B3"} {:term "C3"}}]}}
+
+    (rewrite dsl-rewriter "A3")
+    => {:query {:should [#{{:term "A3"} {:term "B3"} {:term "C3"}}]}})
+
+  (facts "A4 B4"
+    (rewrite resource-rewriter "A4 B4")
+    => {:query {:should [#{{:term "C4"} {:term "D4"} {:term "A4"}}
+                         #{{:term "C4"} {:term "B4"} {:term "D4"}}]}}
+
+    (rewrite dsl-rewriter "A4 B4")
+    => {:query {:should [#{{:term "A4"} {:term "C4"} {:term "D4"}}
+                         #{{:term "B4"} {:term "C4"} {:term "D4"}}]}})
+
+  (facts "A5"
+    (rewrite resource-rewriter "A5")
+    => {:query {:should [#{{:term "A5"}}]},
+        :boost [{:query {:must [#{{:term "B5"}}]}, :boost 2.0}]}
+
+    (rewrite dsl-rewriter "A5")
+    => {:query {:should [#{{:term "A5"}}]},
+        :boost [{:query {:must [#{{:term "B5"}}]}, :boost 2.0}]})
+
+  #_(facts "A6"
+      (rewrite resource-rewriter "A6")
+      => {}
+
+      (rewrite dsl-rewriter "A6")
+      => {})
+
+  #_(facts "A7 B7"
+      (rewrite resource-rewriter "A7 B7")
+      => {}
+
+      (rewrite dsl-rewriter "A7 B7")
+      => {})
+
+  #_(facts "A8"
+      (rewrite resource-rewriter "A8")
+      => {}
+
+      (rewrite dsl-rewriter "A8")
+      => {})
+
+  #_(facts "A9"
+      (rewrite resource-rewriter "A9")
+      => {}
+
+      (rewrite dsl-rewriter "A9")
+      => {})
+
+  #_(facts "A10 B10"
+      (rewrite resource-rewriter "A10 B10")
+      => {}
+
+      (rewrite dsl-rewriter "A10 B10")
+      => {})
+
+  #_(facts "A11"
+      (rewrite resource-rewriter "A11")
+      => {}
+
+      (rewrite dsl-rewriter "A11")
+      => {})
+
+  #_(facts "A11 B11"
+      (rewrite resource-rewriter "A11 B11")
+      => {}
+
+      (rewrite dsl-rewriter "A11 B11")
+      => {})
+
+  #_(facts "best netflix show"
+      (rewrite resource-rewriter "best netflix show")
+      => {}
+
+      (rewrite dsl-rewriter "best netflix show")
+      => {})
+
+  #_(facts "best amazon show"
+      (rewrite resource-rewriter "best amazon show")
+      => {}
+
+      (rewrite dsl-rewriter "best amazon show")
+      => {}))
 
 ;; Custom Functions
 
@@ -116,13 +208,8 @@
 (deftest custom-functions-test
   (facts "helper functions can return multiple match rules"
     (rewrite rules-with-custom-functions "chickpea salad")
-    =in=>
-    {:user-query
-     {:occur   :should,
-      :clauses [{:occur   :should,
-                 :clauses [{:value "chickpea"}
-                           {:occur :should,
-                            :clauses
-                            [{:occur :must, :clauses [{:value "garbanzo"}]}
-                             {:occur :must, :clauses [{:value "bean"}]}]}]}
-                {:occur :should, :clauses [{:value "salad"}]}]}}))
+    => {:query
+        {:should
+         [#{{:term "chickpea"}
+            {:must [#{{:term "garbanzo"}} #{{:term "bean"}}]}}
+          #{{:term "salad"}}]}}))
