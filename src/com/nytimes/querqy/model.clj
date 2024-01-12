@@ -103,7 +103,7 @@
     :or   {boost-up   []
            boost-down []
            filter     []}}]
-  (ExpandedQuery. query filter boost-up boost-down))
+  (ExpandedQuery. query filter boost-up boost-down []))
 
 ;; ----------------------------------------------------------------------
 ;;  datafy
