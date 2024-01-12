@@ -5,9 +5,10 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-    fail-fast: false
+    strategy:
+      fail-fast: false
     steps:
     - uses: actions/checkout@v3
 
