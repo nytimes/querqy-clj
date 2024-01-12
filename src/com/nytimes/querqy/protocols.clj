@@ -1,9 +1,9 @@
 (ns com.nytimes.querqy.protocols
   (:require
-   [com.nytimes.querqy.context :as context])
+    [com.nytimes.querqy.context :as context])
   (:import
-   (querqy.model ExpandedQuery Query)
-   (querqy.rewrite ContextAwareQueryRewriter RewriteChain RewriterFactory SearchEngineRequestAdapter)))
+    (querqy.model ExpandedQuery Query)
+    (querqy.rewrite QueryRewriter RewriteChain RewriterFactory SearchEngineRequestAdapter)))
 
 (defprotocol Parser
   (parse ^Query [this ^String string]
@@ -21,19 +21,19 @@
 ;; Some default Rewriter implementations for the Querqy classes.
 
 (extend-protocol Rewriter
-  ContextAwareQueryRewriter
+  QueryRewriter
   (rewrite
     ([this query]
      (rewrite this query context/empty-context))
     ([this query context]
-     (.rewrite this query context)))
+     (some-> (.rewrite this query context) (.getExpandedQuery))))
 
   RewriteChain
   (rewrite
     ([this query]
      (rewrite this query context/empty-context))
     ([this query context]
-     (.rewrite this query context)))
+     (some-> (.rewrite this query context) (.getExpandedQuery))))
 
   RewriterFactory
   (rewrite

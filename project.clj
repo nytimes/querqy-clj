@@ -21,7 +21,7 @@
 
   :dependencies
   [[org.clojure/clojure "1.11.1"]
-   [org.querqy/querqy-core "3.14.0"]]
+   [org.querqy/querqy-core "3.15.0"]]
 
   :repl-options {:init-ns com.nytimes.querqy}
 
