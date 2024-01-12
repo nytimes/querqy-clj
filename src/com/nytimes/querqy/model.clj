@@ -111,34 +111,34 @@
 (extend-protocol cp/Datafiable
   BooleanQuery
   (datafy [^BooleanQuery q]
-    {:type    BooleanQuery
-     :occur   (occur->kw (.getOccur q))
-     :clauses (mapv datafy (.getClauses q))})
+    (-> (group-by (comp occur->kw get-occur) (.getClauses q))
+        (update-keys (fn [k] (keyword "bool" (name k))))
+        (update-vals (partial mapv datafy))))
 
   BoostQuery
   (datafy [^BoostQuery q]
-    {:type  BoostQuery
-     :boost (.getBoost q)
-     :query (datafy (.getQuery q))})
+    {:boost/amount (.getBoost q)
+     :boost/query  (datafy (.getQuery q))})
 
   RawQuery
   (datafy [^RawQuery q]
-    {:type  RawQuery
-     :query (.-query q)})
+    {:raw/query (.-query q)})
 
   DisjunctionMaxQuery
   (datafy [^DisjunctionMaxQuery q]
-    {:type    DisjunctionMaxQuery
-     :occur   (occur->kw (.getOccur q))
-     :clauses (mapv datafy (.getClauses q))})
+    {:dismax/clauses (mapv datafy (.getClauses q))})
 
   ExpandedQuery
   (datafy [^ExpandedQuery q]
-    {:type       ExpandedQuery
-     :user-query (datafy (.getUserQuery q))
-     :boost-up   (mapv datafy (.getBoostUpQueries q))
-     :boost-down (mapv datafy (.getBoostDownQueries q))
-     :filter     (mapv datafy (.getFilterQueries q))})
+    (cond-> {:expanded/query (datafy (.getUserQuery q))}
+      (.getBoostUpQueries q)
+      (assoc :expanded/boost-up (mapv datafy (.getBoostUpQueries q)))
+
+      (.getBoostDownQueries q)
+      (assoc :expanded/boost-down (mapv datafy (.getBoostDownQueries q)))
+
+      (.getFilterQueries q)
+      (assoc :expanded/filter (mapv datafy (.getFilterQueries q)))))
 
   Input$SimpleInput
   (datafy [^Input$SimpleInput i]
@@ -149,24 +149,22 @@
 
   MatchAllQuery
   (datafy [^MatchAllQuery _q]
-    {:type      MatchAllQuery
-     :match_all {}})
+    {:match_all {}})
 
   Query
   (datafy [^Query q]
-    {:type    Query
-     :occur   (occur->kw (.getOccur q))
-     :clauses (mapv datafy (.getClauses q))})
+    (-> (group-by (comp occur->kw get-occur) (.getClauses q))
+        (update-keys (fn [k] (keyword "query" (name k))))
+        (update-vals (partial mapv datafy))))
 
   BoostedTerm
   (datafy [^BoostedTerm t]
-    {:type  BoostedTerm
-     :field (.getField t)
-     :boost (.getBoost t)
-     :value (str (.getValue t))})
+    {:boost/field  (.getField t)
+     :boost/amount (.getBoost t)
+     :boost/value  (str (.getValue t))})
 
   Term
   (datafy [^Term t]
-    {:type  Term
-     :field (.getField t)
-     :value (str (.getValue t))}))
+    (cond-> {:term/value (str (.getValue t))}
+      (.getField t)
+      (assoc :term/field (.getField t)))))

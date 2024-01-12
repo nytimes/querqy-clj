@@ -1,7 +1,7 @@
 (ns com.nytimes.querqy.context
   (:import
-    (java.util Optional)
-    (querqy.rewrite RewriteLoggingConfig SearchEngineRequestAdapter)))
+   (java.util Optional)
+   (querqy.rewrite RewriteLoggingConfig SearchEngineRequestAdapter)))
 
 (defn optional
   ([] (Optional/empty))

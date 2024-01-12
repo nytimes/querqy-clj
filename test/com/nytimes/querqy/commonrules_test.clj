@@ -83,6 +83,13 @@
   (datafy (querqy/rewrite rw string)))
 
 (deftest rewriter-test
+  (facts "A1"
+    (rewrite resource-rewriter "A1")
+    => {}
+
+    (rewrite dsl-rewriter "A1")
+    => {})
+
   (facts "DSL & Resource Rewriters have the same output"
     (rewrite dsl-rewriter "A1") => (rewrite resource-rewriter "A1")
     (rewrite dsl-rewriter "A2 B2") => (rewrite resource-rewriter "A2 B2")
