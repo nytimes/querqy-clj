@@ -6,7 +6,6 @@
    [clojure.test :refer [deftest is]]
    [com.nytimes.querqy :as querqy]
    [com.nytimes.querqy.commonrules :as r :refer [boost delete filter match match* synonym]]
-   [com.nytimes.querqy.model :refer :all]
    [testit.core :refer [=> =in=> facts]])
   (:import
    (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
@@ -129,68 +128,82 @@
     => {:query {:should [#{{:term "A5"}}]},
         :boost [{:query {:must [#{{:term "B5"}}]}, :boost 2.0}]})
 
-  #_(facts "A6"
-      (rewrite resource-rewriter "A6")
-      => {}
+  (facts "A6"
+    (rewrite resource-rewriter "A6")
+    => {:query  {:should [#{{:term "A6"}}]},
+        :filter [{:must [#{{:term "B6"}}]}]}
 
-      (rewrite dsl-rewriter "A6")
-      => {})
+    (rewrite dsl-rewriter "A6")
+    => {:query  {:should [#{{:term "A6"}}]},
+        :filter [{:must [#{{:term "B6"}}]}]})
 
-  #_(facts "A7 B7"
-      (rewrite resource-rewriter "A7 B7")
-      => {}
+  (facts "Terms may be deleted: A7 B7"
+    (rewrite resource-rewriter "A7 B7")
+    => {:query {:should [#{{:term "A7"}}]}}
 
-      (rewrite dsl-rewriter "A7 B7")
-      => {})
+    (rewrite dsl-rewriter "A7 B7")
+    => {:query {:should [#{{:term "A7"}}]}})
 
-  #_(facts "A8"
-      (rewrite resource-rewriter "A8")
-      => {}
+  (facts "A8"
+    (rewrite resource-rewriter "A8")
+    => {:query {:should [#{{:term "B8"} {:term "A8"}}]},
+        :boost [{:query {:must [#{{:term "C8"}}]}, :boost 2.0}]}
 
-      (rewrite dsl-rewriter "A8")
-      => {})
+    (rewrite dsl-rewriter "A8")
+    => {:query {:should [#{{:term "B8"} {:term "A8"}}]},
+        :boost [{:query {:must [#{{:term "C8"}}]}, :boost 2.0}]})
 
-  #_(facts "A9"
-      (rewrite resource-rewriter "A9")
-      => {}
+  (facts "A9"
+    (rewrite resource-rewriter "A9")
+    => {:query {:should [#{{:term "A9"}}]},
+        :boost [{:query {:must [#{{:term "C9"}}]}, :boost 2.0}]}
 
-      (rewrite dsl-rewriter "A9")
-      => {})
+    (rewrite dsl-rewriter "A9")
+    => {:query {:should [#{{:term "A9"}}]},
+        :boost [{:query {:must [#{{:term "C9"}}]}, :boost 2.0}]})
 
-  #_(facts "A10 B10"
-      (rewrite resource-rewriter "A10 B10")
-      => {}
+  (facts "A10 B10"
+    (rewrite resource-rewriter "A10 B10")
+    => {:query {:should [#{{:term "A10"}} #{{:term "B10"}}]},
+        :boost [{:query {:must [#{{:term "C10"}}]}, :boost 2.0}]}
 
-      (rewrite dsl-rewriter "A10 B10")
-      => {})
+    (rewrite dsl-rewriter "A10 B10")
+    => {:query {:should [#{{:term "A10"}} #{{:term "B10"}}]},
+        :boost [{:query {:must [#{{:term "C10"}}]}, :boost 2.0}]})
 
-  #_(facts "A11"
-      (rewrite resource-rewriter "A11")
-      => {}
+  (facts "A11"
+    (rewrite resource-rewriter "A11")
+    => {:query {:should [#{{:term "A11"}}]},
+        :boost [{:query {:must [#{{:term "C11"}}]}, :boost 2.0}]}
 
-      (rewrite dsl-rewriter "A11")
-      => {})
+    (rewrite dsl-rewriter "A11")
+    => {:query {:should [#{{:term "A11"}}]},
+        :boost [{:query {:must [#{{:term "C11"}}]}, :boost 2.0}]})
 
-  #_(facts "A11 B11"
-      (rewrite resource-rewriter "A11 B11")
-      => {}
+  (facts "A11 B11"
+    (rewrite resource-rewriter "A11 B11")
+    => {:query {:should [#{{:term "A11"}} #{{:term "B11"}}]}}
 
-      (rewrite dsl-rewriter "A11 B11")
-      => {})
+    (rewrite dsl-rewriter "A11 B11")
+    => {:query {:should [#{{:term "A11"}} #{{:term "B11"}}]}})
 
-  #_(facts "best netflix show"
-      (rewrite resource-rewriter "best netflix show")
-      => {}
+  (facts "best netflix show"
+    (rewrite resource-rewriter "best netflix show")
+    => {:query {:should [#{{:term "best"}} #{{:term "netflix"}} #{{:term "show"}}]},
+        :boost [{:query {:must [#{{:term "netflix"}}]}, :boost 2.0}]}
 
-      (rewrite dsl-rewriter "best netflix show")
-      => {})
+    (rewrite dsl-rewriter "best netflix show")
+    => {:query {:should [#{{:term "best"}} #{{:term "netflix"}} #{{:term "show"}}]},
+        :boost [{:query {:must [#{{:term "netflix"}}]}, :boost 2.0}]})
 
-  #_(facts "best amazon show"
-      (rewrite resource-rewriter "best amazon show")
-      => {}
+  (facts "best amazon show"
+    (rewrite resource-rewriter "best amazon show")
+    => {:query {:should [#{{:term "best"}} #{{:term "amazon"}} #{{:term "show"}}]},
+        :boost [{:query {:must [#{{:term "amazon"}}]}, :boost 2.0}]}
 
-      (rewrite dsl-rewriter "best amazon show")
-      => {}))
+    (rewrite dsl-rewriter "best amazon show")
+    => {:query {:should [#{{:term "best"}} #{{:term "amazon"}} #{{:term "show"}}]},
+        :boost [{:query {:must [#{{:term "amazon"}}]}, :boost 2.0}]}))
 
 ;; Custom Functions
 

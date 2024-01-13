@@ -108,8 +108,7 @@
 
 (extend-protocol cp/Datafiable
   MatchAllQuery
-  (datafy [^BoostedTerm t]
-    {:match_all {}}))
+  (datafy [_] {:match_all {}}))
 
 ;; ----------------------------------------------------------------------
 ;; DisjunctionMaxQuery
@@ -193,8 +192,8 @@
   QuerqyQuery
   (clone [_ new-parent]
     (RawQuery. new-parent occur query generated?))
-  (clone [_ new-parent generated?]
-    (RawQuery. new-parent occur query generated?)))
+  (clone [_ new-parent generated'?]
+    (RawQuery. new-parent occur query generated'?)))
 
 (defn rawq? [obj] (instance? RawQuery obj))
 
