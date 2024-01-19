@@ -83,22 +83,127 @@
   (datafy (querqy/rewrite rw string)))
 
 (deftest rewriter-test
-  (facts "DSL & Resource Rewriters have the same output"
-    (rewrite dsl-rewriter "A1") => (rewrite resource-rewriter "A1")
-    (rewrite dsl-rewriter "A2 B2") => (rewrite resource-rewriter "A2 B2")
-    (rewrite dsl-rewriter "A3") => (rewrite resource-rewriter "A3")
-    (rewrite dsl-rewriter "A4 B4") => (rewrite resource-rewriter "A4 B4")
-    (rewrite dsl-rewriter "A5") => (rewrite resource-rewriter "A5")
-    (rewrite dsl-rewriter "A6") => (rewrite resource-rewriter "A6")
-    (rewrite dsl-rewriter "A7 B7") => (rewrite resource-rewriter "A7 B7")
-    (rewrite dsl-rewriter "A8") => (rewrite resource-rewriter "A8")
-    (rewrite dsl-rewriter "A9") => (rewrite resource-rewriter "A9")
-    (rewrite dsl-rewriter "B9") => (rewrite resource-rewriter "B9")
-    (rewrite dsl-rewriter "A10 B10") => (rewrite resource-rewriter "A10 B10")
-    (rewrite dsl-rewriter "A11") => (rewrite resource-rewriter "A11")
-    (rewrite dsl-rewriter "A11 B11") => (rewrite resource-rewriter "A11 B11")
-    (rewrite dsl-rewriter "best netflix show") => (rewrite resource-rewriter "best netflix show")
-    (rewrite dsl-rewriter "best amazon show") => (rewrite resource-rewriter "best amazon show")))
+  (facts "A1"
+    (rewrite resource-rewriter "A1")
+    => {:query {:should [#{{:term "A1"} {:term "B1"}}]}}
+
+    (rewrite dsl-rewriter "A1")
+    => {:query {:should [#{{:term "A1"} {:term "B1"}}]}})
+
+  (facts "A2 B2"
+    (rewrite resource-rewriter "A2 B2")
+    => {:query
+        {:should
+         [#{{:term "A2"} {:term "C2"}}
+          #{{:term "B2"} {:term "C2"}}]}}
+
+    (rewrite dsl-rewriter "A2 B2")
+    => {:query
+        {:should
+         [#{{:term "A2"} {:term "C2"}}
+          #{{:term "B2"} {:term "C2"}}]}})
+
+  (facts "A3"
+    (rewrite resource-rewriter "A3")
+    => {:query {:should [#{{:term "A3"} {:term "B3"} {:term "C3"}}]}}
+
+    (rewrite dsl-rewriter "A3")
+    => {:query {:should [#{{:term "A3"} {:term "B3"} {:term "C3"}}]}})
+
+  (facts "A4 B4"
+    (rewrite resource-rewriter "A4 B4")
+    => {:query {:should [#{{:term "C4"} {:term "D4"} {:term "A4"}}
+                         #{{:term "C4"} {:term "B4"} {:term "D4"}}]}}
+
+    (rewrite dsl-rewriter "A4 B4")
+    => {:query {:should [#{{:term "A4"} {:term "C4"} {:term "D4"}}
+                         #{{:term "B4"} {:term "C4"} {:term "D4"}}]}})
+
+  (facts "A5"
+    (rewrite resource-rewriter "A5")
+    => {:query {:should [#{{:term "A5"}}]},
+        :boost [{:query {:must [#{{:term "B5"}}]}, :boost 2.0}]}
+
+    (rewrite dsl-rewriter "A5")
+    => {:query {:should [#{{:term "A5"}}]},
+        :boost [{:query {:must [#{{:term "B5"}}]}, :boost 2.0}]})
+
+  (facts "A6"
+    (rewrite resource-rewriter "A6")
+    => {:query  {:should [#{{:term "A6"}}]},
+        :filter [{:must [#{{:term "B6"}}]}]}
+
+    (rewrite dsl-rewriter "A6")
+    => {:query  {:should [#{{:term "A6"}}]},
+        :filter [{:must [#{{:term "B6"}}]}]})
+
+  (facts "Terms may be deleted: A7 B7"
+    (rewrite resource-rewriter "A7 B7")
+    => {:query {:should [#{{:term "A7"}}]}}
+
+    (rewrite dsl-rewriter "A7 B7")
+    => {:query {:should [#{{:term "A7"}}]}})
+
+  (facts "A8"
+    (rewrite resource-rewriter "A8")
+    => {:query {:should [#{{:term "B8"} {:term "A8"}}]},
+        :boost [{:query {:must [#{{:term "C8"}}]}, :boost 2.0}]}
+
+    (rewrite dsl-rewriter "A8")
+    => {:query {:should [#{{:term "B8"} {:term "A8"}}]},
+        :boost [{:query {:must [#{{:term "C8"}}]}, :boost 2.0}]})
+
+  (facts "A9"
+    (rewrite resource-rewriter "A9")
+    => {:query {:should [#{{:term "A9"}}]},
+        :boost [{:query {:must [#{{:term "C9"}}]}, :boost 2.0}]}
+
+    (rewrite dsl-rewriter "A9")
+    => {:query {:should [#{{:term "A9"}}]},
+        :boost [{:query {:must [#{{:term "C9"}}]}, :boost 2.0}]})
+
+  (facts "A10 B10"
+    (rewrite resource-rewriter "A10 B10")
+    => {:query {:should [#{{:term "A10"}} #{{:term "B10"}}]},
+        :boost [{:query {:must [#{{:term "C10"}}]}, :boost 2.0}]}
+
+    (rewrite dsl-rewriter "A10 B10")
+    => {:query {:should [#{{:term "A10"}} #{{:term "B10"}}]},
+        :boost [{:query {:must [#{{:term "C10"}}]}, :boost 2.0}]})
+
+  (facts "A11"
+    (rewrite resource-rewriter "A11")
+    => {:query {:should [#{{:term "A11"}}]},
+        :boost [{:query {:must [#{{:term "C11"}}]}, :boost 2.0}]}
+
+    (rewrite dsl-rewriter "A11")
+    => {:query {:should [#{{:term "A11"}}]},
+        :boost [{:query {:must [#{{:term "C11"}}]}, :boost 2.0}]})
+
+  (facts "A11 B11"
+    (rewrite resource-rewriter "A11 B11")
+    => {:query {:should [#{{:term "A11"}} #{{:term "B11"}}]}}
+
+    (rewrite dsl-rewriter "A11 B11")
+    => {:query {:should [#{{:term "A11"}} #{{:term "B11"}}]}})
+
+  (facts "best netflix show"
+    (rewrite resource-rewriter "best netflix show")
+    => {:query {:should [#{{:term "best"}} #{{:term "netflix"}} #{{:term "show"}}]},
+        :boost [{:query {:must [#{{:term "netflix"}}]}, :boost 2.0}]}
+
+    (rewrite dsl-rewriter "best netflix show")
+    => {:query {:should [#{{:term "best"}} #{{:term "netflix"}} #{{:term "show"}}]},
+        :boost [{:query {:must [#{{:term "netflix"}}]}, :boost 2.0}]})
+
+  (facts "best amazon show"
+    (rewrite resource-rewriter "best amazon show")
+    => {:query {:should [#{{:term "best"}} #{{:term "amazon"}} #{{:term "show"}}]},
+        :boost [{:query {:must [#{{:term "amazon"}}]}, :boost 2.0}]}
+
+    (rewrite dsl-rewriter "best amazon show")
+    => {:query {:should [#{{:term "best"}} #{{:term "amazon"}} #{{:term "show"}}]},
+        :boost [{:query {:must [#{{:term "amazon"}}]}, :boost 2.0}]}))
 
 ;; Custom Functions
 
@@ -116,13 +221,8 @@
 (deftest custom-functions-test
   (facts "helper functions can return multiple match rules"
     (rewrite rules-with-custom-functions "chickpea salad")
-    =in=>
-    {:user-query
-     {:occur   :should,
-      :clauses [{:occur   :should,
-                 :clauses [{:value "chickpea"}
-                           {:occur :should,
-                            :clauses
-                            [{:occur :must, :clauses [{:value "garbanzo"}]}
-                             {:occur :must, :clauses [{:value "bean"}]}]}]}
-                {:occur :should, :clauses [{:value "salad"}]}]}}))
+    => {:query
+        {:should
+         [#{{:term "chickpea"}
+            {:must [#{{:term "garbanzo"}} #{{:term "bean"}}]}}
+          #{{:term "salad"}}]}}))

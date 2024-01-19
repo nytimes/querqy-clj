@@ -13,10 +13,10 @@
   "util to turn expanded query into a string. this only works for this particular set of tests."
   [q]
   (->> (datafy q)
-       :user-query
-       :clauses
-       (mapcat :clauses)
-       (map :value)
+       :query
+       :should
+       (mapcat identity)
+       (map :term)
        (str/join " ")
        (str/trim)))
 
@@ -73,9 +73,9 @@
 (deftest replace-test
   (are [input output] (= output (query->string (querqy/rewrite rewriter input)))
     "cheapest cheaper cheap" "cheap cheap cheap"
-    "samrtphone" "smartphone"
-    "computerscreen" "computer screen"
-    "iphones" "iphone"
-    "ihpone ihpone" "iphone iphone"
-    "galaxy+ phone" "galaxy plus phone"
-    "The Batman (2022)" "The Batman 2022"))
+    "samrtphone"             "smartphone"
+    "computerscreen"         "computer screen"
+    "iphones"                "iphone"
+    "ihpone ihpone"          "iphone iphone"
+    "galaxy+ phone"          "galaxy plus phone"
+    "The Batman (2022)"      "The Batman 2022"))

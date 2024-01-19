@@ -163,9 +163,8 @@
           boost-up      (forv [query (.getBoostUpQueries query)]
                               (emit* query opts))
           boost-down    (forv [^BoostQuery query (.getBoostDownQueries query)]
-                              ;; down boost are converted to negative numbers here
-                              (let [boosted (m/boostq {:boost (- (.getBoost query))
-                                                       :query (.getQuery query)})]
+                          ;; down boost are converted to negative numbers here
+                              (let [boosted (m/boost-query (- (.getBoost query)) (.getQuery query))]
                                 (emit* boosted opts)))
           functions     (concat boost-up boost-down)
           default-query {:function_score {:query user-query, :functions []}}]

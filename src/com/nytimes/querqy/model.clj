@@ -2,10 +2,25 @@
   "Builders for classes in the `querqy.model` package."
   (:require
    [clojure.core.protocols :as cp]
-   [clojure.datafy :refer [datafy]]
-   [clojure.string :as str])
+   [clojure.datafy :refer [datafy]])
   (:import
-   (querqy.model BooleanParent BooleanQuery BoostQuery BoostedTerm Clause Clause$Occur DisjunctionMaxQuery ExpandedQuery Input$SimpleInput MatchAllQuery QuerqyQuery Query Term)))
+   (querqy.model
+    BooleanParent
+    BooleanQuery
+    BoostQuery
+    BoostedTerm
+    Clause
+    Clause$Occur
+    DisjunctionMaxQuery
+    ExpandedQuery
+    Input$SimpleInput
+    MatchAllQuery
+    QuerqyQuery
+    Query
+    Term)))
+
+;; ----------------------------------------------------------------------
+;; Helpers
 
 (def should Clause$Occur/SHOULD)
 (def must Clause$Occur/MUST)
@@ -14,67 +29,171 @@
 (defn get-occur [^Clause clause]
   (.getOccur clause))
 
-(defn occur->kw [^Clause$Occur occur]
-  (keyword (str/lower-case (.name occur))))
+(def occur->kw
+  {should   :should
+   must     :must
+   must-not :must-not})
 
-(defn term? [obj] (instance? Term obj))
+(def kw->occur
+  {:should   should
+   :must     must
+   :must-not must-not})
+
+;; ----------------------------------------------------------------------
+;; Term
 
 (defn term
-  [{:keys [parent field value generated]
-    :or   {generated false}}]
-  {:pre [(string? value)]}
-  (Term. parent field value generated))
+  "Create a `querqy.model.Term`."
+  ([value]
+   (term nil value nil))
 
-(defn boosted-term? [obj] (instance? BoostedTerm obj))
+  ([field value]
+   (term field value nil))
+
+  ([field value {:keys [parent generated] :or {generated false}}]
+   (assert (string? value))
+   (assert (boolean? generated))
+   (Term. parent field value generated)))
+
+(defn term?
+  "Return true if object is a `querqy.model.Term`"
+  [obj]
+  (instance? Term obj))
+
+(extend-protocol cp/Datafiable
+  Term
+  (datafy [^Term t]
+    (with-meta
+      (cond-> {:term (str (.getValue t))}
+        (.getField t)
+        (assoc :field (.getField t)))
+      {:type Term})))
+
+;; ----------------------------------------------------------------------
+;; BoostedTerm
 
 (defn boosted-term
-  [{:keys [parent field value boost]}]
-  {:pre [(string? value) (number? boost)]}
-  (BoostedTerm. parent field value boost))
+  "Create a `querqy.model.BoostedTerm`."
+  ([value boost]
+   (boosted-term nil value boost nil))
+
+  ([field value boost]
+   (boosted-term field value boost nil))
+
+  ([field value boost {:keys [parent]}]
+   (assert (string? value))
+   (assert (number? boost))
+   (BoostedTerm. parent field value boost)))
+
+(defn boosted-term?
+  [obj]
+  (instance? BoostedTerm obj))
+
+(extend-protocol cp/Datafiable
+  BoostedTerm
+  (datafy [^BoostedTerm t]
+    (with-meta
+      (cond-> {:term  (str (.getValue t))
+               :boost (.getBoost t)}
+        (.getField t)
+        (assoc :field (.getField t)))
+      {:type BoostedTerm})))
+
+;; ----------------------------------------------------------------------
+;; MatchAllQuery
 
 (defn match-all? [obj] (instance? MatchAllQuery obj))
 
 (defn match-all [] (MatchAllQuery.))
 
-(defn dismaxq? [obj] (instance? DisjunctionMaxQuery obj))
+(extend-protocol cp/Datafiable
+  MatchAllQuery
+  (datafy [_] {:match_all {}}))
 
-(defn dismaxq
-  [{:keys [parent occur generated clauses]
-    :or   {occur     should
-           generated false}}]
-  (let [query (DisjunctionMaxQuery. parent occur generated)]
-    (doseq [^Clause clause clauses]
-      (.addClause query (.clone clause query)))
-    query))
+;; ----------------------------------------------------------------------
+;; DisjunctionMaxQuery
 
-(defn boostq? [obj] (instance? BoostQuery obj))
+(defn dismax
+  ([clauses]
+   (dismax :should clauses nil))
 
-(defn boostq
-  [{:keys [^QuerqyQuery query boost]}]
+  ([occur clauses]
+   (dismax occur clauses nil))
+
+  ([occur clauses {:keys [parent generated] :or {generated false}}]
+   (let [occur (kw->occur occur)
+         query (DisjunctionMaxQuery. parent occur generated)]
+     (doseq [^Clause clause clauses]
+       (.addClause query (.clone clause query)))
+     query)))
+
+(defn dismax?
+  [obj]
+  (instance? DisjunctionMaxQuery obj))
+
+(extend-protocol cp/Datafiable
+  DisjunctionMaxQuery
+  (datafy [^DisjunctionMaxQuery q]
+    (set (mapv datafy (.getClauses q)))))
+
+;; ----------------------------------------------------------------------
+;; BoostQuery
+
+(defn boost-query
+  [boost ^QuerqyQuery query]
   {:pre [(number? boost)]}
   (BoostQuery. query boost))
 
-(defn boolq? [obj] (instance? BooleanQuery obj))
+(defn boost-query?
+  [obj]
+  (instance? BoostQuery obj))
 
-(defn boolq
-  [{:keys [^BooleanParent parent
-           ^Clause$Occur occur
-           generated
-           clauses]
-    :or   {generated false
-           occur     should
-           clauses   []}}]
-  (let [bq (BooleanQuery. parent occur generated)]
-    (doseq [^Clause clause clauses]
-      (.addClause bq (.clone clause bq)))
-    bq))
+(extend-protocol cp/Datafiable
+  BoostQuery
+  (datafy [^BoostQuery q]
+    (with-meta
+      {:query (datafy (.getQuery q))
+       :boost (.getBoost q)}
+      {:type BooleanQuery})))
+
+;; ----------------------------------------------------------------------
+;; BooleanQuery
+
+(defn bool
+  ([clauses]
+   (bool :should clauses nil))
+
+  ([occur clauses]
+   (bool occur clauses nil))
+
+  ([occur clauses {:keys [^BooleanParent parent generated] :or {generated false}}]
+   (let [occur (kw->occur occur)
+         query (BooleanQuery. parent occur generated)]
+     (doseq [^Clause clause clauses]
+       (.addClause query (.clone clause query)))
+     query)))
+
+(defn bool?
+  [obj]
+  (instance? BooleanQuery obj))
+
+(extend-protocol cp/Datafiable
+  BooleanQuery
+  (datafy [^BooleanQuery q]
+    (with-meta
+      (-> (group-by (comp occur->kw get-occur) (.getClauses q))
+          (update-vals (partial mapv datafy)))
+      {:type BooleanQuery})))
+
+;; ----------------------------------------------------------------------
+;; 
 
 (defrecord RawQuery [parent occur query generated?]
   QuerqyQuery
   (clone [_ new-parent]
     (RawQuery. new-parent occur query generated?))
-  (clone [_ new-parent generated?]
-    (RawQuery. new-parent occur query generated?)))
+  (clone [_ new-parent generated'?]
+    (RawQuery. new-parent occur query generated'?)))
 
 (defn rawq? [obj] (instance? RawQuery obj))
 
@@ -84,61 +203,58 @@
            generated false}}]
   (RawQuery. parent occur query generated))
 
-(defn q? [obj] (instance? Query obj))
+;; ----------------------------------------------------------------------
+;; Query
 
-(defn q
-  [{:keys [generated clauses]
-    :or   {generated false}}]
-  (let [query (Query. generated)]
-    (doseq [^Clause clause clauses]
-      (.addClause query (.clone clause query)))
-    query))
+(defn query
+  ([clauses]
+   (query clauses nil))
 
-(defn querqyq? [obj] (instance? QuerqyQuery obj))
+  ([clauses {:keys [generated] :or {generated false}}]
+   (let [query (Query. generated)]
+     (doseq [^Clause clause clauses]
+       (.addClause query (.clone clause query)))
+     query)))
 
-(defn expandedq? [obj] (instance? ExpandedQuery obj))
+(defn query?
+  [obj]
+  (instance? Query obj))
 
-(defn expandedq
-  [{:keys [query boost-up boost-down filter]
-    :or   {boost-up   []
-           boost-down []
-           filter     []}}]
+;; ----------------------------------------------------------------------
+;; ExpandedQuery
+
+(defn expanded
+  [query & {:keys [boost-up boost-down filter]
+            :or   {boost-up   []
+                   boost-down []
+                   filter     []}}]
   (ExpandedQuery. query filter boost-up boost-down))
+
+(defn expanded?
+  [obj]
+  (instance? ExpandedQuery obj))
+
+(extend-protocol cp/Datafiable
+  ExpandedQuery
+  (datafy [^ExpandedQuery q]
+    (let [boosts (concat (.getBoostUpQueries q) (.getBoostDownQueries q))]
+      (with-meta
+        (cond-> {:query (datafy (.getUserQuery q))}
+          (.getFilterQueries q)
+          (assoc :filter (mapv datafy (.getFilterQueries q)))
+
+          (seq boosts)
+          (assoc :boost (mapv datafy boosts)))
+        {:type ExpandedQuery}))))
 
 ;; ----------------------------------------------------------------------
 ;;  datafy
 
 (extend-protocol cp/Datafiable
-  BooleanQuery
-  (datafy [^BooleanQuery q]
-    {:type    BooleanQuery
-     :occur   (occur->kw (.getOccur q))
-     :clauses (mapv datafy (.getClauses q))})
-
-  BoostQuery
-  (datafy [^BoostQuery q]
-    {:type  BoostQuery
-     :boost (.getBoost q)
-     :query (datafy (.getQuery q))})
 
   RawQuery
   (datafy [^RawQuery q]
-    {:type  RawQuery
-     :query (.-query q)})
-
-  DisjunctionMaxQuery
-  (datafy [^DisjunctionMaxQuery q]
-    {:type    DisjunctionMaxQuery
-     :occur   (occur->kw (.getOccur q))
-     :clauses (mapv datafy (.getClauses q))})
-
-  ExpandedQuery
-  (datafy [^ExpandedQuery q]
-    {:type       ExpandedQuery
-     :user-query (datafy (.getUserQuery q))
-     :boost-up   (mapv datafy (.getBoostUpQueries q))
-     :boost-down (mapv datafy (.getBoostDownQueries q))
-     :filter     (mapv datafy (.getFilterQueries q))})
+    {:raw/query (.-query q)})
 
   Input$SimpleInput
   (datafy [^Input$SimpleInput i]
@@ -147,26 +263,7 @@
      :left-boundary?  (.isRequiresLeftBoundary i)
      :right-boundary? (.isRequiresRightBoundary i)})
 
-  MatchAllQuery
-  (datafy [^MatchAllQuery _q]
-    {:type      MatchAllQuery
-     :match_all {}})
-
   Query
   (datafy [^Query q]
-    {:type    Query
-     :occur   (occur->kw (.getOccur q))
-     :clauses (mapv datafy (.getClauses q))})
-
-  BoostedTerm
-  (datafy [^BoostedTerm t]
-    {:type  BoostedTerm
-     :field (.getField t)
-     :boost (.getBoost t)
-     :value (str (.getValue t))})
-
-  Term
-  (datafy [^Term t]
-    {:type  Term
-     :field (.getField t)
-     :value (str (.getValue t))}))
+    (-> (group-by (comp occur->kw get-occur) (.getClauses q))
+        (update-vals (partial mapv datafy)))))
