@@ -150,6 +150,8 @@
   (instance? DeleteInstruction obj))
 
 (defn delete
+  "Delete text from a matched query. This is useful for removing unhelpful
+  search terms from the query."
   [string]
   (DeleteInstruction.
    (parse-string string)
@@ -160,7 +162,12 @@
   (instance? SynonymInstruction obj))
 
 (defn synonym
-  "Create a synonym instruction."
+  "Create a synonym for the matched text.
+
+  ```clojure
+  (match \"chickpeas\"
+    (synonym \"garbanzo beans\"))
+  ```"
   ([string]
    (synonym 1.0 string))
   ([boost string]
@@ -170,7 +177,14 @@
     (description {:type "synonym", :param boost, :value string}))))
 
 (defn boost
-  "Boost a matching term or query."
+  "Boost a matching term or query.
+
+  ```clojure
+  ;; Boost recipes which take less than 30 minutes when queries
+  ;; match quick and recipe or recipes.
+  (match (and \"quick\" (or \"recipe\" \"recipes\")
+    (boost 10 {:range {:minutes {:lte 30}}}))
+  ```"
   [boost query]
   (when (zero? boost)
     (throw (IllegalArgumentException. "Cannot boost by 0")))
@@ -184,7 +198,12 @@
      (description {:type "boost", :param boost, :value (pr-str query)}))))
 
 (defn filter
-  "Add a filter to the query."
+  "Add a filter to the query. Filters require a match on documents.
+
+  ```clojure
+  (match \"by paul krugman\"
+    (filter {:term {:author \"Paul Krugman\"}}))
+  ```"
   [query]
   (FilterInstruction.
    (parse-query query)
