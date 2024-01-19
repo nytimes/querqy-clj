@@ -7,17 +7,45 @@
    [com.nytimes.querqy.model :as model]
    [com.nytimes.querqy.parser :as parser])
   (:import
-   (java.io Reader)
-   (java.net URL)
-   (java.util List UUID)
-   (querqy.model Input Input$BooleanInput Input$SimpleInput)
-   (querqy.parser QuerqyParser)
-   (querqy.rewrite RewriterFactory)
-   (querqy.rewrite.commonrules CommonRulesRewriter LineParser QuerqyParserFactory SimpleCommonRulesParser WhiteSpaceQuerqyParserFactory)
-   (querqy.rewrite.commonrules.model BoostInstruction BoostInstruction$BoostDirection BoostInstruction$BoostMethod DeleteInstruction FilterInstruction Instructions SynonymInstruction TrieMapRulesCollectionBuilder)
-   (querqy.rewrite.commonrules.select SelectionStrategyFactory)
-   (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
-   (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type BooleanInputLiteral)))
+   (java.io
+    Reader)
+   (java.net
+    URL)
+   (java.util
+    List
+    UUID)
+   (querqy.model
+    Input
+    Input$BooleanInput
+    Input$SimpleInput)
+   (querqy.parser
+    QuerqyParser)
+   (querqy.rewrite
+    RewriterFactory)
+   (querqy.rewrite.commonrules
+    CommonRulesRewriter
+    LineParser
+    QuerqyParserFactory
+    SimpleCommonRulesParser
+    WhiteSpaceQuerqyParserFactory)
+   (querqy.rewrite.commonrules.model
+    BoostInstruction
+    BoostInstruction$BoostDirection
+    BoostInstruction$BoostMethod
+    DeleteInstruction
+    FilterInstruction
+    InstructionDescription
+    Instructions
+    SynonymInstruction
+    TrieMapRulesCollectionBuilder)
+   (querqy.rewrite.commonrules.select
+    SelectionStrategyFactory)
+   (querqy.rewrite.commonrules.select.booleaninput
+    BooleanInputParser)
+   (querqy.rewrite.commonrules.select.booleaninput.model
+    BooleanInputElement
+    BooleanInputElement$Type
+    BooleanInputLiteral)))
 
 (set! *warn-on-reflection* true)
 
@@ -78,6 +106,15 @@
 
 (defrecord Rule [input instructions])
 
+(defn- description
+  ^InstructionDescription
+  [& {:keys [^String type, param, ^String value]}]
+  (cond-> (InstructionDescription/builder)
+    (some? type) (.typeName type)
+    (some? param) (.param param)
+    (some? value) (.value value)
+    :finally (.build)))
+
 (defn match*
   "Create a "
   [head & tail]
@@ -114,7 +151,9 @@
 
 (defn delete
   [string]
-  (DeleteInstruction. (parse-string string)))
+  (DeleteInstruction.
+   (parse-string string)
+   (description {:type "delete", :value string})))
 
 (defn synonym?
   [obj]
@@ -123,9 +162,12 @@
 (defn synonym
   "Create a synonym instruction."
   ([string]
-   (SynonymInstruction. (parse-string string)))
+   (synonym 1.0 string))
   ([boost string]
-   (SynonymInstruction. (parse-string string) boost)))
+   (SynonymInstruction.
+    (parse-string string)
+    boost
+    (description {:type "synonym", :param boost, :value string}))))
 
 (defn boost
   "Boost a matching term or query."
@@ -134,15 +176,19 @@
     (throw (IllegalArgumentException. "Cannot boost by 0")))
   (let [UP   BoostInstruction$BoostDirection/UP
         DOWN BoostInstruction$BoostDirection/DOWN]
-    (BoostInstruction. (parse-query query)
-                       (if (>= boost 0) UP DOWN)
-                       BoostInstruction$BoostMethod/ADDITIVE
-                       (abs boost))))
+    (BoostInstruction.
+     (parse-query query)
+     (if (>= boost 0) UP DOWN)
+     BoostInstruction$BoostMethod/ADDITIVE
+     (abs boost)
+     (description {:type "boost", :param boost, :value (pr-str query)}))))
 
 (defn filter
   "Add a filter to the query."
   [query]
-  (FilterInstruction. (parse-query query)))
+  (FilterInstruction.
+   (parse-query query)
+   (description {:type "filter", :value (pr-str query)})))
 
 ;;; match impl
 

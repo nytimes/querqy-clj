@@ -1,7 +1,7 @@
 (ns com.nytimes.querqy.context
   (:import
    (java.util Optional)
-   (querqy.rewrite SearchEngineRequestAdapter)))
+   (querqy.rewrite RewriteLoggingConfig SearchEngineRequestAdapter)))
 
 (defn optional
   ([] (Optional/empty))
@@ -18,7 +18,7 @@
   (getFloatRequestParam [_ k] (some-> (get params k) float optional))
   (getDoubleRequestParam [_ k] (some-> (get params k) double optional))
   (isDebugQuery [_] debug?)
-  (getInfoLoggingContext [_] (optional)))
+  (getRewriteLoggingConfig [_] (RewriteLoggingConfig/off)))
 
 (def empty-context
   (map->Context
@@ -26,4 +26,3 @@
     :debug?  false
     :params  {}
     :context {}}))
-
