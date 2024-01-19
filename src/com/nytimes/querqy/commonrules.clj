@@ -14,7 +14,7 @@
    (querqy.parser QuerqyParser)
    (querqy.rewrite RewriterFactory)
    (querqy.rewrite.commonrules CommonRulesRewriter LineParser QuerqyParserFactory SimpleCommonRulesParser WhiteSpaceQuerqyParserFactory)
-   (querqy.rewrite.commonrules.model BoostInstruction BoostInstruction$BoostDirection DeleteInstruction FilterInstruction Instructions SynonymInstruction TrieMapRulesCollectionBuilder)
+   (querqy.rewrite.commonrules.model BoostInstruction BoostInstruction$BoostDirection BoostInstruction$BoostMethod DeleteInstruction FilterInstruction Instructions SynonymInstruction TrieMapRulesCollectionBuilder)
    (querqy.rewrite.commonrules.select SelectionStrategyFactory)
    (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
    (querqy.rewrite.commonrules.select.booleaninput.model BooleanInputElement BooleanInputElement$Type BooleanInputLiteral)))
@@ -62,7 +62,8 @@
                        ^Reader stream
                        ^boolean boolean-input
                        ^QuerqyParserFactory parser
-                       ^boolean ignore-case)]
+                       ^boolean ignore-case
+                       BoostInstruction$BoostMethod/ADDITIVE)]
      (.parse rules-parser))))
 
 (extend-protocol CommonRulesRewriterBuilder
@@ -135,6 +136,7 @@
         DOWN BoostInstruction$BoostDirection/DOWN]
     (BoostInstruction. (parse-query query)
                        (if (>= boost 0) UP DOWN)
+                       BoostInstruction$BoostMethod/ADDITIVE
                        (abs boost))))
 
 (defn filter
