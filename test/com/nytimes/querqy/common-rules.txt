@@ -39,3 +39,9 @@ A8 =>
 
 (best AND amazon AND show) =>
     UP(2): amazon
+
+(best AND airfryer AND NOT (recipe OR recipes)) =>
+    UP(2): wirecutter
+
+sample raw rule =>
+    FILTER: * {"term": {"field": "value"}}

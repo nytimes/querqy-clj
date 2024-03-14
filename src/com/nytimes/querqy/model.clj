@@ -17,7 +17,8 @@
     MatchAllQuery
     QuerqyQuery
     Query
-    Term)))
+    Term
+    StringRawQuery)))
 
 ;; ----------------------------------------------------------------------
 ;; Helpers
@@ -203,6 +204,11 @@
            generated false}}]
   (RawQuery. parent occur query generated))
 
+(defn raws
+  "Create a raw string query."
+  [& {:keys [parent occur query generated] :or {occur should generated false}}]
+  (StringRawQuery. parent query occur generated))
+
 ;; ----------------------------------------------------------------------
 ;; Query
 
@@ -255,6 +261,10 @@
   RawQuery
   (datafy [^RawQuery q]
     {:raw/query (.-query q)})
+
+  StringRawQuery
+  (datafy [^StringRawQuery q]
+    (.getQueryString q))
 
   Input$SimpleInput
   (datafy [^Input$SimpleInput i]

@@ -3,9 +3,12 @@
   (:require
    [clojure.datafy :refer [datafy]]
    [clojure.java.io :as io]
-   [clojure.test :refer [deftest is]]
+   [clojure.test :refer [deftest is testing]]
    [com.nytimes.querqy :as querqy]
-   [com.nytimes.querqy.commonrules :as r :refer [boost delete filter match match* synonym]]
+   [com.nytimes.querqy.commonrules :as r
+    :refer [boost delete filter match
+            match* synonym]]
+   [matcher-combinators.test :refer [match?]]
    [testit.core :refer [=> =in=> facts]])
   (:import
    (querqy.rewrite.commonrules.select.booleaninput BooleanInputParser)
@@ -203,7 +206,12 @@
 
     (rewrite dsl-rewriter "best amazon show")
     => {:query {:should [#{{:term "best"}} #{{:term "amazon"}} #{{:term "show"}}]},
-        :boost [{:query {:must [#{{:term "amazon"}}]}, :boost 2.0}]}))
+        :boost [{:query {:must [#{{:term "amazon"}}]}, :boost 2.0}]})
+
+  (testing "Raw string rules"
+    (is (match? {:query  {:should [#{{:term "sample"}} #{{:term "raw"}} #{{:term "rule"}}]},
+                 :filter ["{\"term\": {\"field\": \"value\"}}"]}
+                (rewrite resource-rewriter "sample raw rule")))))
 
 ;; Custom Functions
 
