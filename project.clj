@@ -37,10 +37,11 @@
    {:source-paths ["dev"]
     :jvm-opts     ["-Dorg.slf4j.simpleLogger.defaultLogLevel=debug"]
     :dependencies
-    [[metosin/testit "0.4.1"]
+    [[criterium "0.4.6"]
      [lambdaisland/kaocha "1.66.1034"]
+     [metosin/testit "0.4.1"]
+     [nubank/matcher-combinators "3.9.1"]
      [org.clojure/test.check "1.1.1"]
-     [criterium "0.4.6"]
      [org.slf4j/slf4j-api "1.7.36"]
      [org.slf4j/slf4j-simple "1.7.36"]]}}
 

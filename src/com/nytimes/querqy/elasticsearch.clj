@@ -38,7 +38,15 @@
    [com.nytimes.querqy.protocols :as p])
   (:import
    (com.nytimes.querqy.model RawQuery)
-   (querqy.model BooleanQuery BoostQuery BoostedTerm DisjunctionMaxQuery ExpandedQuery MatchAllQuery Term)))
+   (querqy.model
+    BooleanQuery
+    BoostQuery
+    BoostedTerm
+    DisjunctionMaxQuery
+    ExpandedQuery
+    MatchAllQuery
+    StringRawQuery
+    Term)))
 
 (defprotocol InternalEmitter
   (emit* [this opts]))
@@ -144,6 +152,10 @@
   RawQuery
   (emit* [query _opts]
     (:query query))
+
+  StringRawQuery
+  (emit* [query _opts]
+    (.getQueryString query))
 
   BoostQuery
   (emit* [query opts]
