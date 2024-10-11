@@ -124,13 +124,16 @@
 
   BooleanQuery
   (emit* [query {:keys [::parent] :as opts}]
-    (let [get-occur   (comp m/occur->kw m/get-occur)
-          clauses     (forv [clause (.getClauses query)]
-                            (let [occur  (get-occur clause)
-                                  clause (emit* clause opts)]
-                              (hash-map occur (if (sequential? clause)
-                                                clause
-                                                (vector clause)))))
+    (let [clauses
+          (forv [clause (.getClauses query)]
+                (let [occur  (case (m/occur->kw (m/get-occur clause))
+                               :should   :should
+                               :must     :must
+                               :must-not :must_not)
+                      clause (emit* clause opts)]
+                  (hash-map occur (if (sequential? clause)
+                                    clause
+                                    (vector clause)))))
           first-occur (keys (first clauses))
           promotable  #{:should :must}]
       (cond
@@ -175,7 +178,7 @@
           boost-up      (forv [query (.getBoostUpQueries query)]
                               (emit* query opts))
           boost-down    (forv [^BoostQuery query (.getBoostDownQueries query)]
-                          ;; down boost are converted to negative numbers here
+                              ;; down boost are converted to negative numbers here
                               (let [boosted (m/boost-query (- (.getBoost query)) (.getQuery query))]
                                 (emit* boosted opts)))
           functions     (concat boost-up boost-down)
