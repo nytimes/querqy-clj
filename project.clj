@@ -1,4 +1,4 @@
-(defproject com.nytimes/querqy-clj "0.8.2"
+(defproject com.nytimes/querqy-clj "0.8.3-SNAPSHOT"
   :description "Querqy in Clojure"
   :url "https://github.com/nytimes/querqy-clj"
 
